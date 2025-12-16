@@ -80,7 +80,7 @@ public class PanélisteService {
         if (!user.isPresent()) {
             return PanélisteResponse.builder()
                     .statusCode(404)
-                    .msg("Panéliste N'ixiste Pas ")
+                    .msg("Panéliste N'éxiste Pas ")
                     .build();
         }
         if(user.get().getRole() == Role.ADMIN) {
