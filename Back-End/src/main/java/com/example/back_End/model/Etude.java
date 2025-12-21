@@ -9,6 +9,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @Data
@@ -40,6 +42,45 @@ public class Etude {
     @Lob
     private byte[] img;
 
+    @ManyToMany
+    @JoinTable(
+            name = "etude_sexe",
+            joinColumns = @JoinColumn(name = "etude_id"),
+            inverseJoinColumns = @JoinColumn(name = "sexe_id")
+    )
+    private Set<Sexe> sexes = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "etude_region",
+            joinColumns = @JoinColumn(name = "etude_id"),
+            inverseJoinColumns = @JoinColumn(name = "region_id")
+    )
+    private Set<Region> regions = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "etude_fonction",
+            joinColumns = @JoinColumn(name = "etude_id"),
+            inverseJoinColumns = @JoinColumn(name = "fonction_id")
+    )
+    private Set<Fonction> fonctions = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "etude_fonction_detailler",
+            joinColumns = @JoinColumn(name = "etude_id"),
+            inverseJoinColumns = @JoinColumn(name = "fonction_detailler_id")
+    )
+    private Set<FonctionDeteiller> fonctionDeteillers = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "etude_age",
+            joinColumns = @JoinColumn(name = "etude_id"),
+            inverseJoinColumns = @JoinColumn(name = "age_id")
+    )
+    private Set<Age> ages = new HashSet<>();
 
     public EtudeRequest getRequest() {
         EtudeRequest etudeRequest = new EtudeRequest();

@@ -1,25 +1,23 @@
 package com.example.back_End.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Set;
-
-@Data
 @Builder
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
-public class Sexe {
+@Table(name = "age")
+public class Age {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private Integer id;
 
     private String libelle;
-
-
+    private int age_Min;
+    private int age_Max;
 }

@@ -171,4 +171,43 @@ public class EtudeService {
         }
     }
 
+    public EtudeResponse modifierEtude(EtudeRequest request , Integer id) {
+        try {
+            Optional<Etude> etude = etudeRepository.findById(id);
+            if(!etude.isPresent()) {
+                return EtudeResponse.builder()
+                        .error("Etude N'exist Pas")
+                        .statusCode(404)
+                        .build();
+            }
+            Optional<CategorieEtude> categorieEtu = categorieEtudeRepository.findById(request.getCategorie_id().getId());
+            if(!categorieEtu.isPresent()) {
+                return EtudeResponse.builder()
+                        .error("Catégorie Etude N'exist Pas")
+                        .statusCode(404)
+                        .build();
+            }
+            Etude edu = etude.get();
+            edu.setLibelle(request.getLibelle());
+            edu.setDescription(request.getDescription());
+            edu.setDurré(request.getDurré());
+            edu.setPoint(request.getPoint());
+            edu.setCategorieEtude(request.getCategorie_id());
+            if(request.getImg()!= null && !request.getImg().isEmpty()) {
+                edu.setImg(request.getImg().getBytes());
+            }
+            etudeRepository.save(edu);
+            return EtudeResponse.builder()
+                    .msg("Etude Modifier Avec Succcé")
+                    .statusCode(200)
+                    .build();
+
+        } catch (Exception e) {
+            return EtudeResponse.builder()
+                    .error(e.getMessage())
+                    .statusCode(500)
+                    .build();
+        }
+    }
+
 }

@@ -63,4 +63,15 @@ public class EtudeController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
+
+    @PutMapping("/etude/modifier/{etude_id}")
+    public ResponseEntity<EtudeResponse> modifierEtude(
+            @ModelAttribute EtudeRequest request,
+            @PathVariable Integer etude_id
+    ) {
+        EtudeResponse response = service.modifierEtude(request,etude_id);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response);
+    }
+
 }
