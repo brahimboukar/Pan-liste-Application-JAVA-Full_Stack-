@@ -1,5 +1,6 @@
 package com.example.back_End.dto;
 
+import com.example.back_End.model.Role;
 import com.example.back_End.model.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ public class AuthenticationResponse {
 
     private User user;
     private String token;
+    private Role role;
     private String msg;
     private int statusCode;
     private String error;

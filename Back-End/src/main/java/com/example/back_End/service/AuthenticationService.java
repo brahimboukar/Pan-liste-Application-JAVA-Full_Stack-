@@ -93,6 +93,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .role(user.getRole())
                 .statusCode(200)
                 .msg("Vous avez Connecter Succé")
                 .build();

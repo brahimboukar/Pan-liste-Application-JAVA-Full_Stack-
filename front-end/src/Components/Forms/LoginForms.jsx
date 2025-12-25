@@ -1,38 +1,60 @@
+import { Link } from "react-router";
+import InputText from "../UI/InputText";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import Authentication from "../../Services/Authentication.js";
+
 export default function LoginForms() {
+
+  const email = useRef('')
+  const password = useRef('')
+  const [error , setError] = useState(null)
+
+  const navigate = useNavigate();
+
+  
+
+  const handleSubmit = async(e) => {
+     e.preventDefault()
+     try {
+      const userData = await Authentication.login(email.current.value,password.current.value)
+      if(userData.token) {
+        localStorage.setItem('token' , userData.token)
+        localStorage.setItem('role' , userData.role)
+        if(userData.role === 'ADMIN') {
+          navigate('/dashbord')
+        }
+        else {
+          navigate('/recomponse')
+        }
+      }
+      else {
+        setError(userData.error)
+      }
+     } catch (error) {
+      console.log(error)
+      setError(error)
+      setTimeout(() => {
+        setError('')
+      },5000)
+      
+     }
+  }
+  
     return (
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
             <div className="mb-8">
               <h1 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white">
                 Créer Votre Compte Gratuitement
               </h1>
-              
+              {error}
             </div>
 
-            <form className="space-y-5">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  placeholder="info@gmail.com"
-                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm dark:border-gray-700 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Password *
-                </label>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <InputText label={"Email *"}  ref={email}  type={"text"} placeholder={"Email"} />
 
-                <div className="relative">
-                  <input
-                    placeholder="Enter your password"
-                    className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 pr-11 text-sm dark:border-gray-700 dark:text-white"
-                  />
 
-                  
-                </div>
-              </div>
+              <InputText label={"Password *"}  ref={password} type={"password"} placeholder={"Password "} />
 
             
               <div className="flex items-center justify-between">
@@ -60,12 +82,12 @@ export default function LoginForms() {
 
             <p className="mt-5 text-center text-sm text-gray-700 dark:text-gray-400">
               Don&apos;t have an account?{" "}
-              <span
-                to="/signup"
+              <Link
+                to="/inscreption"
                 className="text-brand-500 hover:text-brand-600"
               >
                 Sign Up
-              </span>
+              </Link>
             </p>
           </div>
     )
