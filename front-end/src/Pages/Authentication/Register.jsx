@@ -26,8 +26,16 @@ export default function Register() {
             Votre voix compte et vous en serez récompensé !
           </p>
         </div>
+        <div className="flex w-full items-center justify-center px-4 py-10 lg:w-1/2">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+            
+            <h2 className="mb-6 text-lg font-semibold text-gray-800">
+              Rejoignez Nous  la communauté <span className="text-indigo-600">Panéle Express</span>
+            </h2>
 
       <RegisterForms />
+      </div>
+      </div>
         
       </div>
     </div>

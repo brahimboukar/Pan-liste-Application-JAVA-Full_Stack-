@@ -67,7 +67,7 @@ public class AuthenticationController {
 
     @GetMapping("/fonction")
     public List<Fonction> fonctionList() {
-        return fonctionRepository.findAll();
+        return fonctionRepository.findAllByOrderByIdAsc();
     }
 
     @GetMapping("/fonctionDétailler/{fonction_Id}")

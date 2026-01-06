@@ -82,7 +82,7 @@ public class AuthenticationService {
                     .build();
         } catch (BadCredentialsException e) {
             return AuthenticationResponse.builder()
-                    .error("Email ou mot de passe incorrect")
+                    .error("Email ou mot de passe non reconnu.")
                     .statusCode(401)
                     .build();
         }

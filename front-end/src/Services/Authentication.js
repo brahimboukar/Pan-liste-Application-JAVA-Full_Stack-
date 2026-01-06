@@ -13,13 +13,11 @@ export default class Authentication {
         }
     }
 
-    static async register(userData , token) {
+    static async register(userData) {
         // eslint-disable-next-line no-useless-catch
         try {
             const response = await axios.post(`${ENDPOINT}/api/auth/register`,userData,
-                {
-                    headers : {Authorization: `Bearer ${token}`}
-                })
+                )
                 return response.data
         } catch (err) {
             throw err;
@@ -40,6 +38,26 @@ export default class Authentication {
         // eslint-disable-next-line no-useless-catch
         try {
             const response = await axios.get(`${ENDPOINT}/api/auth/region`)
+            return response.data
+           
+        } catch (err) {
+            throw err;
+        } 
+    }
+     static async getAllFonction() {
+        // eslint-disable-next-line no-useless-catch
+        try {
+            const response = await axios.get(`${ENDPOINT}/api/auth/fonction`)
+            return response.data
+           
+        } catch (err) {
+            throw err;
+        } 
+    }
+    static async getAllFonctionDetailler(id) {
+        // eslint-disable-next-line no-useless-catch
+        try {
+            const response = await axios.get(`${ENDPOINT}/api/auth/fonctionDétailler/${id}`);
             return response.data
            
         } catch (err) {
@@ -70,6 +88,9 @@ export default class Authentication {
 
     static adminOnly() {
         return this.isAuthentication() && this.isAdmin();
+    }
+    static userOnly() {
+        return this.isAuthentication() && this.isUser();
     }
 
 }

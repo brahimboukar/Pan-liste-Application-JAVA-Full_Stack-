@@ -3,12 +3,16 @@ import InputText from "../UI/InputText";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import Authentication from "../../Services/Authentication.js";
+import AlertDanger from "../Alert/AlertDanger.jsx";
+import Loader from "../Loader/Loader.jsx";
 
 export default function LoginForms() {
 
   const email = useRef('')
   const password = useRef('')
   const [error , setError] = useState(null)
+  const [validationErreur , setValidationErreur] = useState({})
+  const [loading , setLoading] = useState(false)
 
   const navigate = useNavigate();
 
@@ -16,9 +20,29 @@ export default function LoginForms() {
 
   const handleSubmit = async(e) => {
      e.preventDefault()
+     setValidationErreur({})
+     setError('')
+     let erreurObject = {}
+     if(!email.current.value) {
+      erreurObject.email = "Le Champ Email Est Obligatoire"
+     }
+      if (email.current.value &&
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i.test(email.current.value)) 
+      {
+      erreurObject.email = "Email N'est Pas Valide";
+      }
+     if(!password.current.value) {
+      erreurObject.password = "Le Champ Password Est Obligatoire"
+     }
+
+     if(Object.keys(erreurObject).length > 0) {
+      setValidationErreur(erreurObject);
+      return;
+     }
+     
+     setLoading(true)
      try {
-      const userData = await Authentication.login(email.current.value,password.current.value)
-      if(userData.token) {
+        const userData = await Authentication.login(email.current.value,password.current.value)
         localStorage.setItem('token' , userData.token)
         localStorage.setItem('role' , userData.role)
         if(userData.role === 'ADMIN') {
@@ -27,18 +51,18 @@ export default function LoginForms() {
         else {
           navigate('/recomponse')
         }
-      }
-      else {
-        setError(userData.error)
-      }
-     } catch (error) {
-      console.log(error)
-      setError(error)
-      setTimeout(() => {
-        setError('')
-      },5000)
-      
+     } catch (err) {
+      if (err.response) {
+      setError(err.response.data.error);
+      email.current.value=''
+      password.current.value=''
+    } else {
+      setError("Erreur serveur réessayez plus tard");
+    }
      }
+     finally {
+      setLoading(false)
+    }
   }
   
     return (
@@ -47,46 +71,48 @@ export default function LoginForms() {
               <h1 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white">
                 Créer Votre Compte Gratuitement
               </h1>
-              {error}
             </div>
-
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <InputText label={"Email *"}  ref={email}  type={"text"} placeholder={"Email"} />
+            {error && <AlertDanger text={error}/>}
+              <InputText label={"Adresse électronique *"} ref={email} error={validationErreur.email}   type={"text"} placeholder={"Votre@address.com"} />
+              
 
-
-              <InputText label={"Password *"}  ref={password} type={"password"} placeholder={"Password "} />
-
+              <InputText label={"Mot de passe *"}  ref={password} error={validationErreur.password}  type={"password"} placeholder={"Mot de passe"} />
+              
             
               <div className="flex items-center justify-between">
-                <label className="flex cursor-pointer items-center text-sm text-gray-700 dark:text-gray-400">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                  />
-                  Keep me logged in
-                </label>
+                
 
                 <span
                   className="text-sm text-brand-500 hover:text-brand-600"
                 >
-                  Forgot password?
+                  Mot de passe oublié ?
                 </span>
               </div>
               <button
-                type="submit"
-                className="w-full rounded-lg bg-brand-500 py-3 text-sm font-medium text-white hover:bg-brand-600"
-              >
-                Créer compte
-              </button>
+        type="submit"
+        disabled={loading}
+        className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium text-white
+          ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-brand-500 hover:bg-brand-600"}
+        `}
+      >
+        {loading ? (
+          <>
+            <Loader />
+          </>
+        ) : (
+          "Se connecter"
+        )}
+      </button>
             </form>
 
             <p className="mt-5 text-center text-sm text-gray-700 dark:text-gray-400">
-              Don&apos;t have an account?{" "}
+              Vous n&apos;avez pas de compte?{" "}
               <Link
                 to="/inscreption"
                 className="text-brand-500 hover:text-brand-600"
               >
-                Sign Up
+              Inscrivez-vous
               </Link>
             </p>
           </div>
