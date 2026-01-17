@@ -42,6 +42,10 @@ public class PanélisteService {
         return filterUser;
     }
 
+    public long nbrAllUser() {
+        return repository.countByRole(Role.USER);
+    }
+
     public AuthenticationResponse createPanélist(RegisterRequest request) {
         var user = User.builder()
                 .nom(request.getNom())

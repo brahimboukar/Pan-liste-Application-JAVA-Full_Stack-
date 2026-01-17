@@ -4,8 +4,21 @@ import Register from "./Pages/Authentication/Register";
 import PrivateRoute from "./PrivateRoute";
 import Dash from "./Pages/Admin/Dash";
 import Recomponse from "./Pages/Panéliste/Recomponse";
+// import { useEffect } from "react";
+import Authentication from "./Services/Authentication";
 
 export default function App() {
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     Authentication.logout();
+  //   };
+
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, []);
   return(
     <BrowserRouter>
     <Routes>
@@ -13,7 +26,7 @@ export default function App() {
       <Route path="/inscreption" element={<Register />} />
 
 
-      <Route path="/dashbord" element={
+      <Route path="/dashboard" element={
         <PrivateRoute adminOnly={true}>
         <Dash />
         </PrivateRoute>

@@ -149,6 +149,10 @@ public class EtudeService {
         return etudes.stream().map(Etude::getRequest).collect(Collectors.toList());
     }
 
+    public long nbrEtude() {
+        return etudeRepository.count();
+    }
+
     public EtudeResponse deleteEtude(Integer id) {
         try {
             Optional<Etude> etude = etudeRepository.findById(id);

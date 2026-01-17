@@ -78,12 +78,12 @@ export default class Authentication {
 
     static isAdmin() {
         const role = localStorage.getItem('role')
-        return role === 'ADMIN'
+        return role?.toUpperCase() === 'ADMIN';
     }
 
     static isUser() {
         const role = localStorage.getItem('role')
-        return role === 'USER'
+        return role?.toUpperCase() === 'USER';
     }
 
     static adminOnly() {

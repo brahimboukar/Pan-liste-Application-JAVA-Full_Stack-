@@ -12,9 +12,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -34,6 +36,31 @@ public class PanélisteController {
                     .body("Liste Des Panéliste est vide");
         }
         return ResponseEntity.ok(users);
+    }
+
+
+    @GetMapping("/nbrPaneliste")
+    public ResponseEntity<?> nbrUsers() {
+        try {
+            return ResponseEntity.status(200).body(panélisteService.nbrAllUser());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+    @GetMapping("/currentUser")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        try {
+            User user = (User) authentication.getPrincipal();
+            return ResponseEntity.status(200).body(
+                    Map.of(
+                            "nom", user.getNom(),
+                            "prenom", user.getPrenom()
+                    )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Vous Connecter");
+        }
+
     }
 
     @PostMapping("/createPanéliste")

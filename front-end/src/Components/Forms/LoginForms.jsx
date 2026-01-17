@@ -46,7 +46,8 @@ export default function LoginForms() {
         localStorage.setItem('token' , userData.token)
         localStorage.setItem('role' , userData.role)
         if(userData.role === 'ADMIN') {
-          navigate('/dashbord')
+        console.log(localStorage.getItem('role'))
+         navigate('/dashboard')
         }
         else {
           navigate('/recomponse')

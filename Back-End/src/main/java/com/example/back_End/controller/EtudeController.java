@@ -41,6 +41,15 @@ public class EtudeController {
                 .body(response);
     }
 
+    @GetMapping("/etude/nbrEtude")
+    public ResponseEntity<?> nbrEtude() {
+        try {
+            return ResponseEntity.status(200).body(service.nbrEtude());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     @PostMapping(value = "/etude/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EtudeResponse> createEtude(@ModelAttribute EtudeRequest request) {
         EtudeResponse response = service.createEtude(request);

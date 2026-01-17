@@ -49,6 +49,14 @@ public class RecomponseController {
     public ResponseEntity <List<RecomponseRequest>> gettAllRecomponse() {
         return ResponseEntity.ok(service.listRecomponse());
     }
+    @GetMapping("/recomponse/nbrRecomponse")
+    public ResponseEntity<?> nbrRecomponse () {
+        try {
+            return ResponseEntity.status(200).body(service.nbrRecomponse());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
 
     @PostMapping(value = "/recomponse/createRecomponse",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecomponseResponse> createRecomponse(@ModelAttribute RecomponseRequest request) {

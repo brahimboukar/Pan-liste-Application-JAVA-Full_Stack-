@@ -26,6 +26,9 @@ public class EvenementService {
         List<Evenements> evenements = evenementRepository.findAll();
         return evenements.stream().map(Evenements::request).collect(Collectors.toList());
     }
+    public long nbrEvenment() {
+        return evenementRepository.count();
+    }
 
     public EvenementResponse ajouterEvenement(EvenementRequest request) {
         try {

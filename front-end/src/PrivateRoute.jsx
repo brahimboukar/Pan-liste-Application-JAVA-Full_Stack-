@@ -4,7 +4,7 @@ import { Navigate } from "react-router"
 
 const PrivateRoute = ({children , adminOnly=false , userOnly = false} ) => {
 
-        if(Authentication.isAuthentication()) {
+        if(!Authentication.isAuthentication()) {
             return <Navigate to="/login" replace/>
         }
 

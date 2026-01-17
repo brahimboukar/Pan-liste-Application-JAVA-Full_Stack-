@@ -94,6 +94,11 @@ public class RecomponseService {
         return recomponses.stream().map(Recomponse::getRequest).collect(Collectors.toList());
     }
 
+    public long nbrRecomponse() {
+        return recomponseRepository.count();
+
+    }
+
 
     public RecomponseResponse createRecomponse(RecomponseRequest request){
         try {

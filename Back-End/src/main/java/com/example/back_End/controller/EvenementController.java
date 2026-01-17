@@ -27,6 +27,15 @@ public class EvenementController {
         }
     }
 
+    @GetMapping("/evenement/nbrEvenement")
+    public ResponseEntity<?> nbrEvenement() {
+        try {
+            return ResponseEntity.status(200).body(service.nbrEvenment());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     @PostMapping(value = "/evenement/ajouter",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EvenementResponse> ajouter(@ModelAttribute EvenementRequest request) {
         EvenementResponse response = service.ajouterEvenement(request);
