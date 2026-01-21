@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { 
     LayoutDashboard,
     Menu,
@@ -11,22 +11,35 @@ import {
     CalendarSync,
     Contact,
     } from "lucide-react";
+import { Link, useLocation } from 'react-router-dom';
 
 function NavBar() {
-    const [activeMenu, setActiveMenu] = useState('Dashboard');
-
+  const [activeMenu, setActiveMenu] = useState('');
+  const location = useLocation();
   const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, badge: null },
-    { name: 'Panélistes', icon: Users },
-    { name: 'Catégorie Récomponses', icon: Layers},
-    { name: 'Récomponses', icon: CircleStar},
-    { name: 'Catégorie Etudes', icon: Layers},
-    { name: 'Etudes', icon: ClipboardList},
-    { name: 'Etudes Cible', icon: SquareMousePointer},
-    { name: 'Demande Récomponses', icon: HandCoins},
-    { name: 'Evenement', icon: CalendarSync},
-    { name: 'Evenement Participant', icon: Contact},
-  ];
+  { name: 'Dashboard', icon: LayoutDashboard, link: '/dashboard' },
+  { name: 'Panélistes', icon: Users, link: '/panéliste' },
+  { name: 'Catégorie Récomponses', icon: Layers, link: '/categories-recomponses' },
+  { name: 'Récomponses', icon: CircleStar, link: '/recomponses' },
+  { name: 'Catégorie Etudes', icon: Layers, link: '/categories-etudes' },
+  { name: 'Etudes', icon: ClipboardList, link: '/etudes' },
+  { name: 'Etudes Cible', icon: SquareMousePointer, link: '/etudes-cible' },
+  { name: 'Demande Récomponses', icon: HandCoins, link: '/demandes-recomponses' },
+  { name: 'Evenement', icon: CalendarSync, link: '/evenements' },
+  { name: 'Evenement Participant', icon: Contact, link: '/evenement-participants' },
+];
+
+
+ useEffect(() => {
+  const currentPage = menuItems.find(
+    item => item.link === location.pathname
+  );
+
+  if (currentPage) {
+    setActiveMenu(currentPage.name);
+  }
+}, [location.pathname]);
+
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 flex items-center gap-2">
@@ -39,30 +52,24 @@ function NavBar() {
           </button>
         </div>
 
-        
         <div className="px-4">
         <p className="text-xs text-gray-500 mb-2 px-3">Menu</p>
           {menuItems.map((item) => (
-            <button
+            <Link
               key={item.name}
+              to={item.link}
               onClick={() => setActiveMenu(item.name)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
-                activeMenu === item.name
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors
+                ${
+                  activeMenu === item.name
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
             >
               <item.icon size={20} />
               <span className="flex-1 text-left text-sm">{item.name}</span>
-              {item.badge && (
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  activeMenu === item.name ? 'bg-indigo-500' : 'bg-indigo-100 text-indigo-600'
-                }`}>
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          ))}
+            </Link>
+))}
         </div>
       </div>
   )

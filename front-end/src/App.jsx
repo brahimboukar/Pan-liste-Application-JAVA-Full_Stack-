@@ -6,6 +6,7 @@ import Dash from "./Pages/Admin/Dash";
 import Recomponse from "./Pages/Panéliste/Recomponse";
 // import { useEffect } from "react";
 import Authentication from "./Services/Authentication";
+import Paneliste from "./Pages/Admin/Paneliste";
 
 export default function App() {
   // useEffect(() => {
@@ -29,6 +30,11 @@ export default function App() {
       <Route path="/dashboard" element={
         <PrivateRoute adminOnly={true}>
         <Dash />
+        </PrivateRoute>
+      }/>
+      <Route path="/panéliste" element={
+        <PrivateRoute adminOnly={true}>
+        <Paneliste />
         </PrivateRoute>
       }/>
 
