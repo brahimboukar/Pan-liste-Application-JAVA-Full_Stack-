@@ -47,37 +47,58 @@ public class PanélisteService {
     }
 
     public AuthenticationResponse createPanélist(RegisterRequest request) {
-        var user = User.builder()
-                .nom(request.getNom())
-                .prenom(request.getPrenom())
-                .email(request.getEmail())
-                .telephone(request.getTelephone())
-                .sexe(request.getId_sexe())
-                .region(request.getId_region())
-                .fonction(request.getId_fonction())
-                .fonctionDeteiller(request.getId_fonction_details())
-                .dateNaissance(request.getDateNaissance())
-                .points(0)
-                .age(Period.between(request.getDateNaissance(), LocalDate.now()).getYears())
-                .blocked(false)
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-        if (emailAlreadyExists(request.getEmail())) {
+
+        try {
+            LocalDate dateNaissance = request.getDateNaissance();
+            if (dateNaissance == null) {
+                return AuthenticationResponse.builder()
+                        .statusCode(400)
+                        .msg("Date de naissance obligatoire")
+                        .build();
+            }
+
+            int age = Period.between(dateNaissance, LocalDate.now()).getYears();
+
+            var user = User.builder()
+                    .nom(request.getNom())
+                    .prenom(request.getPrenom())
+                    .email(request.getEmail())
+                    .telephone(request.getTelephone())
+                    .sexe(request.getId_sexe())
+                    .region(request.getId_region())
+                    .fonction(request.getId_fonction())
+                    .fonctionDeteiller(request.getId_fonction_details())
+                    .dateNaissance(dateNaissance)
+                    .points(0)
+                    .age(age)
+                    .blocked(false)
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .build();
+
+            if (emailAlreadyExists(request.getEmail())) {
+                return AuthenticationResponse.builder()
+                        .msg("Email Déja Existe")
+                        .statusCode(400)
+                        .build();
+            }
+
+            repository.save(user);
+            var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
-                    .error("Email Déja Existe")
-                    .statusCode(400)
+                    .user(user)
+                    .token(jwtToken)
+                    .statusCode(200)
+                    .msg("Panéliste Créer Avec Succée")
+                    .build();
+        } catch (Exception e) {
+            return AuthenticationResponse.builder()
+                    .statusCode(500)
+                    .error(e.getMessage())
                     .build();
         }
-        repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .user(user)
-                .token(jwtToken)
-                .statusCode(200)
-                .msg("Panéliste Créer Avec Succée")
-                .build();
     }
+
 
     public PanélisteResponse deletePanéliste(Integer id) {
         Optional<User> user = repository.findById(id);

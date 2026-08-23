@@ -4,6 +4,8 @@ import com.example.back_End.model.Fonction;
 import com.example.back_End.model.FonctionDeteiller;
 import com.example.back_End.model.Region;
 import com.example.back_End.model.Sexe;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -84,6 +86,7 @@ public class RegisterRequest {
         this.id_fonction_details = id_fonction_details;
     }
 
+
     public LocalDate getDateNaissance() {
         return dateNaissance;
     }
@@ -106,6 +109,9 @@ public class RegisterRequest {
     private Region id_region;
     private Fonction id_fonction;
     private FonctionDeteiller id_fonction_details;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonProperty("dateNaissance")
     private LocalDate dateNaissance;
     private String password;
 }

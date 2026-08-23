@@ -1,9 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import "tailwindcss";
-
-@import "preline/variants.css";
-@source "../node_modules/preline/dist/*.js";
-
