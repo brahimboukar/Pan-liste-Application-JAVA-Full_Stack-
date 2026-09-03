@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from "react-router-dom";
 const partnerCompanies = [
     {
         id: 1,
@@ -87,13 +88,15 @@ function Home() {
 
                         <div className="flex items-center gap-3">
 
-                                <button  className="hidden rounded-full px-4 py-2 text-xs font-medium text-slate-200 ring-1 ring-slate-700 hover:bg-slate-900 md:inline-flex">
-                                    Se connecter
-                                </button>
+                                <Link to="/login">
+                                    <button  className="hidden rounded-full px-4 py-2 text-xs font-medium text-slate-200 ring-1 ring-slate-700 hover:bg-slate-900 md:inline-flex">
+                                        Se connecter
+                                    </button>
+                                </Link>
 
 
-                                <button to="/register" className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400">
-                                    Essayer gratuitement
+                                <button  className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400">
+                                   Créer Votre Compte
                                 </button>
 
                         </div>

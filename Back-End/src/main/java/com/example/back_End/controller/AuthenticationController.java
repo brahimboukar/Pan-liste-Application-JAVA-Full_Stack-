@@ -45,7 +45,6 @@ public class AuthenticationController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
-    //création Compte Pour ADMIN
 
     @PostMapping("/creatAdmin")
     public ResponseEntity<AuthenticationResponse> createAdmin (@RequestBody RegisterRequest request) {
