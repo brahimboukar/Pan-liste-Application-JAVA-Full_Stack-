@@ -10,6 +10,10 @@ import com.example.back_End.repository.CategorieRecomponseRepository;
 import com.example.back_End.repository.RecomponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,9 +93,14 @@ public class RecomponseService {
 
 
 
-     public List<RecomponseRequest> listRecomponse () {
-        List<Recomponse> recomponses = recomponseRepository.findAll();
-        return recomponses.stream().map(Recomponse::getRequest).collect(Collectors.toList());
+    public Page<RecomponseRequest> listRecomponse(int page, int size, Integer categorieId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Recomponse> recomponses = (categorieId != null)
+                ? recomponseRepository.findByCategorieRecomponse_Id(categorieId, pageable)
+                : recomponseRepository.findAll(pageable);
+
+        return recomponses.map(Recomponse::getRequest);
     }
 
     public long nbrRecomponse() {

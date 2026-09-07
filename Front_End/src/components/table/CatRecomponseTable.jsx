@@ -6,15 +6,19 @@ import DisplayCatRec from "./DisplayCatRec.jsx";
 function CatRecomponseTable() {
     const [error, setError] = useState(null);
     const [cat , setCat] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const getAllCats = async () => {
         setError(null);
+        setLoading(true);
         try {
             const res = await axiosClient.get('api/admin/categorieRecomponse/listCategorie');
             setCat(res.data.data);
         } catch (err) {
             setError(err.response?.data?.error );
             setCat([]);
+        } finally {
+            setLoading(false);
         }
     }
     useEffect(() => {
@@ -64,7 +68,7 @@ function CatRecomponseTable() {
                 <DisplayCatRec
                     categorieRec={cat}
                     error={error}
-
+                    loading={loading}
                 />
                 </tbody>
             </table>

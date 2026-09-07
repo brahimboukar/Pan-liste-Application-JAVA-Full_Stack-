@@ -1,7 +1,34 @@
 import React from 'react';
-import {Trash2} from "lucide-react";
+import {CircleStar, Loader, Trash2} from "lucide-react";
 
-function DisplayCatRec({categorieRec}) {
+function DisplayCatRec({categorieRec , loading}) {
+    if (loading) {
+        return (
+            <tr>
+                <td colSpan={7} className="py-20 text-center">
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                        <Loader size={40} className="text-indigo-500 animate-spin mb-4" />
+                        <span className="text-sm font-medium text-gray-500">Chargement des données...</span>
+                    </div>
+                </td>
+            </tr>
+        );
+    }
+    if (!categorieRec || categorieRec.length === 0) {
+        return (
+            <tr>
+                <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                            <CircleStar size={32} className="text-gray-300" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-500">Aucun Récomponse</span>
+                        <span className="text-xs text-gray-400 mt-1">La liste est actuellement vide</span>
+                    </div>
+                </td>
+            </tr>
+        );
+    }
     return (
         <>
             {categorieRec.map((item) => (

@@ -8,6 +8,7 @@ import com.example.back_End.model.CategorieRecomponse;
 import com.example.back_End.repository.CategorieRecomponseRepository;
 import com.example.back_End.service.RecomponseService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +47,12 @@ public class RecomponseController {
     }
 
     @GetMapping("/recomponse/listRecomponse")
-    public ResponseEntity <List<RecomponseRequest>> gettAllRecomponse() {
-        return ResponseEntity.ok(service.listRecomponse());
+    public ResponseEntity<Page<RecomponseRequest>> gettAllRecomponse(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(required = false) Integer categorieId
+    ) {
+        return ResponseEntity.ok(service.listRecomponse(page, size, categorieId));
     }
     @GetMapping("/recomponse/nbrRecomponse")
     public ResponseEntity<?> nbrRecomponse () {

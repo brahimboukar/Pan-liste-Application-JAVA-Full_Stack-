@@ -7,15 +7,19 @@ import DisplayCatEtude from "./DisplayCatEtude.jsx";
 function CatEtudeTable() {
     const [error, setError] = useState(null);
     const [cat , setCat] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const getAllCats = async () => {
         setError(null);
+        setLoading(true)
         try {
             const res = await axiosClient.get('api/admin/categorieEtude/list');
             setCat(res.data.data);
         } catch (err) {
             setError(err.response?.data?.error );
             setCat([]);
+        } finally {
+            setLoading(false);
         }
     }
     useEffect(() => {
@@ -65,7 +69,7 @@ function CatEtudeTable() {
                         <DisplayCatEtude
                             categorieEtude={cat}
                             error={error}
-
+                            loading={loading}
                         />
                         </tbody>
                     </table>
