@@ -10,6 +10,7 @@ import com.example.back_End.repository.CategorieRecomponseRepository;
 import com.example.back_End.repository.RecomponseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,22 +41,55 @@ public class RecomponseService {
     private RecomponseRepository recomponseRepository;
 
 
-    public CategorieRecomponseResponse listCategorie() {
-        List<CategorieRecomponse> list = repository.findAll();
-        if(list.isEmpty()) {
+    public CategorieRecomponseResponse listCategorie(int page, int size, boolean all) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+            Page<CategorieRecomponse> pageResult = repository.findAll(pageable);
+            if (pageResult.isEmpty()) {
+                return CategorieRecomponseResponse.builder()
+                        .msg("Aucune Catégorie")
+                        .statusCode(200)
+                        .data(List.of())
+                        .currentPage(page)
+                        .totalPages(0)
+                        .totalElements(0)
+                        .pageSize(size)
+                        .build();
+            }
+            if(all) {
+                List<CategorieRecomponse> list = repository.findAll(Sort.by("libelle"));
+                return CategorieRecomponseResponse.builder()
+                        .statusCode(200)
+                        .data(list)
+                        .currentPage(0)
+                        .totalPages(1)
+                        .totalElements(list.size())
+                        .build();
+            }
             return CategorieRecomponseResponse.builder()
-                    .msg("Aucun Catégorie")
                     .statusCode(200)
+                    .data(pageResult.getContent())
+                    .currentPage(pageResult.getNumber())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .pageSize(pageResult.getSize())
+                    .build();
+        } catch (Exception e) {
+            return CategorieRecomponseResponse.builder()
+                    .statusCode(500)
+                    .error(e.getMessage())
                     .build();
         }
-        return CategorieRecomponseResponse.builder()
-                .statusCode(200)
-                .data(list)
-                .build();
     }
+
+
     public boolean libelleAlreadyExists(String libelle) {
         return repository.existsByLibelle(libelle);
     }
+    public boolean libelleRecomponseAlreadyExists(String libelle) {
+        return recomponseRepository.existsByLibelle(libelle);
+    }
+
 
 
     public CategorieRecomponseResponse createCategorie(@RequestBody CategorieRecomponseRequest request) {
@@ -76,28 +110,47 @@ public class RecomponseService {
     }
 
     public CategorieRecomponseResponse deleteCategorie(Integer id) {
-        Optional<CategorieRecomponse> cate = repository.findById(id);
-
-        if(!cate.isPresent()){
+        try {
+            Optional<CategorieRecomponse> cate = repository.findById(id);
+            if(!cate.isPresent()){
+                return CategorieRecomponseResponse.builder()
+                        .statusCode(404)
+                        .msg("Catégoris N'éxiste Pas !")
+                        .build();
+            }
+            boolean isCatUsed = recomponseRepository.existsByCategorieRecomponseId(id);
+            if(isCatUsed) {
+                return CategorieRecomponseResponse.builder()
+                        .error("cette catégorie est encore utilisée par une ou plusieurs récompenses")
+                        .statusCode(409)
+                        .build();
+            }
+            repository.deleteById(id);
             return CategorieRecomponseResponse.builder()
-                    .statusCode(404)
-                    .msg("Catégoris N'éxiste Pas !")
+                    .statusCode(200)
+                    .msg("Catégoris Supprimer Avec Succé ")
+                    .build();
+        } catch (DataIntegrityViolationException e) {
+            return CategorieRecomponseResponse.builder()
+                    .error("cette catégorie est encore utilisée par une ou plusieurs études")
+                    .statusCode(409)
+                    .build();
+        } catch (Exception e) {
+            return CategorieRecomponseResponse.builder()
+                    .error(e.getMessage())
+                    .statusCode(500)
                     .build();
         }
-        repository.deleteById(id);
-         return CategorieRecomponseResponse.builder()
-                .statusCode(200)
-                .msg("Catégoris Supprimer Avec Succé ")
-                .build();
     }
 
 
 
+    @Transactional(readOnly = true)
     public Page<RecomponseRequest> listRecomponse(int page, int size, Integer categorieId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         Page<Recomponse> recomponses = (categorieId != null)
-                ? recomponseRepository.findByCategorieRecomponse_Id(categorieId, pageable)
+                ? recomponseRepository.findByCategorieRecomponseId(categorieId, pageable)
                 : recomponseRepository.findAll(pageable);
 
         return recomponses.map(Recomponse::getRequest);
@@ -118,9 +171,15 @@ public class RecomponseService {
                        .error("Catégorie Recomponse Non Trouvé")
                        .build();
            }
+           if(libelleRecomponseAlreadyExists(request.getLibelle())) {
+               return RecomponseResponse.builder()
+                       .statusCode(422)
+                       .error("Recomponse Déja existe")
+                       .build();
+           }
             Recomponse recomponse = new Recomponse();
             recomponse.setLibelle(request.getLibelle());
-            recomponse.setStatus(request.isStatus());
+            recomponse.setStatus(request.getStatus());
             recomponse.setPoint(request.getPoint());
             if (request.getImg() != null && !request.getImg().isEmpty()) {
                 recomponse.setImg(request.getImg().getBytes());
@@ -235,7 +294,10 @@ public class RecomponseService {
             recomponse.setLibelle(request.getLibelle());
             recomponse.setPoint(request.getPoint());
             recomponse.setCategorieRecomponse(catRec.get());
-            recomponse.setImg(request.getImg().getBytes());
+            recomponse.setStatus(request.getStatus());
+            if (request.getImg() != null && !request.getImg().isEmpty()) {
+                recomponse.setImg(request.getImg().getBytes());
+            }
             recomponseRepository.save(recomponse);
             return RecomponseResponse.builder()
                     .msg("Récomponse modifier Avec Succé")

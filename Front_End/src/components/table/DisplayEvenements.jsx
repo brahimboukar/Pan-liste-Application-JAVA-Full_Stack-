@@ -1,9 +1,12 @@
-import React from 'react';
-import {Calendar, CircleStar, Coins, Gift, Loader, MoreHorizontal, Timer} from "lucide-react";
+import React, {useState} from 'react';
+import {Calendar, CalendarSync, CircleStar, Coins, Eye, Gift, Loader, MoreHorizontal, Timer, Trash} from "lucide-react";
 import StatusBadge from "../badge/StatusBadge.jsx";
 import {format} from "date-fns";
+import ModalEvenments from "../modal/affichage/ModalEvenments.jsx";
 
 function DisplayEvenements({evenements , loading}) {
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedEven, setSelectedEven] = useState(null);
     const formatDate = (date) => {
         return format(new Date(date), "dd MMM, yyyy");
     };
@@ -26,9 +29,9 @@ function DisplayEvenements({evenements , loading}) {
                 <td colSpan={7} className="py-16 text-center">
                     <div className="flex flex-col items-center justify-center text-gray-400">
                         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                            <CircleStar size={32} className="text-gray-300" />
+                            <CalendarSync size={32} className="text-gray-300" />
                         </div>
-                        <span className="text-sm font-semibold text-gray-500">Aucun Récomponse</span>
+                        <span className="text-sm font-semibold text-gray-500">Aucun Evenement</span>
                         <span className="text-xs text-gray-400 mt-1">La liste est actuellement vide</span>
                     </div>
                 </td>
@@ -52,7 +55,7 @@ function DisplayEvenements({evenements , loading}) {
                                     <Gift className="h-4 w-4" />
                                 </div>
                             )}
-                            <span className="text-sm font-medium text-slate-800">{r.libelle}</span>
+                            <span className="text-sm font-medium text-slate-800">{r.libelle.substring(0,10)}...</span>
                         </div>
                     </td>
                     <td className="px-6 py-4">
@@ -75,17 +78,30 @@ function DisplayEvenements({evenements , loading}) {
 
 
 
-                    <td className="px-4 py-4 text-sm text-slate-500">{r.date}</td>
+                    <td className="px-4 py-4 text-sm text-slate-500">{formatDate(r.created_at)}</td>
 
                     <td className="px-4 py-4">
                         <div className="flex justify-end">
-                            <button className="rounded-md p-1.5 text-slate-400 opacity-0 transition-opacity hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100">
-                                <MoreHorizontal className="h-4 w-4" />
+                            <button
+                                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                                title="Voir" onClick={() => {setOpenModal(true) ; setSelectedEven(r)}}
+                            >
+                                <Eye size={15}/>
                             </button>
+                            {/*<button
+                                className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                                title="Supprimer" onClick={() => {setSelectedEtu(r); setIsDeleteOpen(true);}}
+                            >
+                                <Trash size={15}/>
+                            </button>*/}
                         </div>
                     </td>
                 </tr>
             ))}
+            <ModalEvenments evenments = {selectedEven}
+                            isOpen={openModal}
+                            onClose={() => setOpenModal(false)} setIsOpen={setOpenModal}
+            />
         </>
     );
 }

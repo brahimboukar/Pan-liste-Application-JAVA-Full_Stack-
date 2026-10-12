@@ -28,17 +28,17 @@ public class EtudeCibleService {
         try {
             List<Etude> etudes = etudeRepository.findAll();
             List<Etude> etudeCibleList = etudes.stream()
-                    .filter( etude -> !etude.getSexes().isEmpty() ||
+                    .filter( etude ->
+                                    !etude.getSexes().isEmpty() ||
                             !etude.getRegions().isEmpty() ||
                             !etude.getFonctions().isEmpty() ||
                             !etude.getFonctionDeteillers().isEmpty() ||
-                            !etude.getAges().isEmpty() ||
-                            !etude.getId().equals(null)
+                            !etude.getAges().isEmpty()
                             ).toList();
             if(etudeCibleList.isEmpty()) {
                 return EtudeCibleResponse.builder()
                         .error("Aucune étude avec cibles affectées")
-                        .statusCode(404)
+                        .statusCode(204)
                         .build();
             }
             return EtudeCibleResponse.builder()

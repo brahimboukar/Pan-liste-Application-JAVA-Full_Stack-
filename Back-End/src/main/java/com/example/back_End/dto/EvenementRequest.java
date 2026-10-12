@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -22,6 +23,7 @@ public class EvenementRequest {
     private String description;
     private Date dateDebut;
     private Date dateFin;
+    private LocalDateTime created_at;
 
     @Lob
     private byte [] byteImg;

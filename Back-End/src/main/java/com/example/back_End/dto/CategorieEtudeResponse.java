@@ -20,4 +20,9 @@ public class CategorieEtudeResponse {
     private int statusCode;
     private List<CategorieEtude> data;
     private String error;
+
+    private int currentPage;
+    private int totalPages;
+    private long totalElements;
+    private int pageSize;
 }

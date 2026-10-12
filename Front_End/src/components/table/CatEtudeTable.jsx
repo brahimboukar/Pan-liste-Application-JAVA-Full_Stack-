@@ -3,18 +3,34 @@ import {Search} from "lucide-react";
 import {axiosClient} from "../../api/axios.js";
 import DisplayCatRec from "./DisplayCatRec.jsx";
 import DisplayCatEtude from "./DisplayCatEtude.jsx";
+import PaginationTable from "../pagination/PaginationTable.jsx";
+import ModalAddCategorieRec from "../modal/ajoute/ModalAddCategorieRec.jsx";
+import ModalAddCategorieEtude from "../modal/ajoute/ModalAddCategorieEtude.jsx";
 
 function CatEtudeTable() {
     const [error, setError] = useState(null);
     const [cat , setCat] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize] = useState(4);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
-    const getAllCats = async () => {
+    const getAllCatsEtude = async (page = currentPage) => {
         setError(null);
         setLoading(true)
         try {
-            const res = await axiosClient.get('api/admin/categorieEtude/list');
+            const res = await axiosClient.get('api/admin/categorieEtude/list',{
+                params : {
+                    page : page,
+                    size : pageSize
+                }
+            });
             setCat(res.data.data);
+            setTotalPages(res.data.totalPages);
+            setTotalElements(res.data.totalElements);
+            setCurrentPage(res.data.currentPage);
         } catch (err) {
             setError(err.response?.data?.error );
             setCat([]);
@@ -22,9 +38,12 @@ function CatEtudeTable() {
             setLoading(false);
         }
     }
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    }
     useEffect(() => {
-        getAllCats()
-    }, []);
+        getAllCatsEtude(currentPage)
+    }, [currentPage]);
     return (
         <>
             <div className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 rounded-xl overflow-hidden">
@@ -54,6 +73,15 @@ function CatEtudeTable() {
                                     disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                         </div>
+                        <div className="flex gap-3">
+
+                            <button
+                                className="bg-indigo-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-indigo-700 font-medium cursor-pointer"
+                                onClick = {() => setIsModalOpen(true)}
+                            >
+                                + Ajouter Une Catégorie
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -62,6 +90,7 @@ function CatEtudeTable() {
                         <tr className="border-b border-gray-100 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-800/50">
                             <th className="w-16 text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
                             <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Libellé</th>
+                            <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date De Création</th>
                             <th className="w-20 text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
                         </thead>
@@ -70,17 +99,28 @@ function CatEtudeTable() {
                             categorieEtude={cat}
                             error={error}
                             loading={loading}
+                            getAllCategorie={getAllCatsEtude}
+                            currentPage={currentPage}
                         />
                         </tbody>
                     </table>
                 </div>
-                {/*<PaginationTable
-            currentPage={currentPage}
-            lastPage={lastPage}
-            total={total}
-            onPageChange={handlePageChange}
-        />*/}
+                <PaginationTable
+                    currentPage={currentPage + 1}
+                    lastPage={totalPages}
+                    total={totalElements}
+                    onPageChange={(page) => handlePageChange(page - 1)}
+                />
             </div>
+            {
+                isModalOpen && (
+                    <ModalAddCategorieEtude
+                        isOpen={isModalOpen}
+                        getAllCat={getAllCatsEtude}
+                        onClose={() => setIsModalOpen(false)}
+                    />
+                )
+            }
         </>
     );
 }

@@ -12,6 +12,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class RecomponseRequest {
 
     private String libelle;
     private int point ;
-    private boolean status;
+    private Boolean status;
 
     private CategorieRecomponse categorie_id;
 
@@ -32,6 +34,16 @@ public class RecomponseRequest {
     private byte[] byteImg;
 
     private MultipartFile img;
+
+    private LocalDateTime createdAt;
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
 
 }

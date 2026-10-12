@@ -21,8 +21,12 @@ public class EtudeController {
     private final EtudeService service;
 
     @GetMapping("/categorieEtude/list")
-    public ResponseEntity <CategorieEtudeResponse> listCategorie() {
-        CategorieEtudeResponse response = service.listCategorie();
+    public ResponseEntity <CategorieEtudeResponse> listCategorie(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(defaultValue = "false") boolean all
+    ) {
+        CategorieEtudeResponse response = service.listCategorie(page , size,all);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
@@ -57,9 +61,13 @@ public class EtudeController {
                 .body(response);
     }
     @GetMapping("/etude/list")
-    public ResponseEntity<?> listOfEtude() {
+    public ResponseEntity<?> listOfEtude(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(required = false) Integer categorieId
+    ) {
         try {
-            return ResponseEntity.ok(service.listDesEtude());
+            return ResponseEntity.ok(service.listDesEtude(page,size,categorieId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());

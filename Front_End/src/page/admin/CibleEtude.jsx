@@ -1,8 +1,11 @@
 import React from 'react';
+import CibleEtudeTable from "../../components/table/CibleEtudeTable.jsx";
 
 function CibleEtude() {
     return (
-        <div>CibleEtude</div>
+        <>
+            <CibleEtudeTable />
+        </>
     );
 }
 

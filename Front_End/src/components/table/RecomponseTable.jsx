@@ -3,24 +3,32 @@ import { Search, Download, Plus } from "lucide-react";
 import DisplayRecomponses from "./DisplayRecomponses.jsx";
 import {axiosClient} from "../../api/axios.js";
 import PaginationTable from "../pagination/PaginationTable.jsx";
+import ModalAddRecompense from "../modal/ajoute/ModalAddRecompense.jsx";
 
 export default function RecomponseTable() {
     const [error, setError] = useState(null);
     const [recomponses, setRecomponses] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [lastPage, setLastPage] = useState(1);
-    const [selectedCategorie, setSelectedCategorie] = useState("");
+    const [cat , setCat] = useState([]);
+    const [selectCategory, setSelectCategory] = useState("");
 
-    const getAllRecomponses = async (page = 1, categorieId = "") => {
+    const getAllRecomponses = async (page = 1, categorieId = selectCategory) => {
         setError([])
         setLoading(true)
         try {
             const res = await axiosClient.get('api/admin/recomponse/listRecomponse', {
-                params: { page: page - 1, size: 3, categorieId: categorieId || undefined }, // 👈 -1 pour Spring
+                params: {
+                    page: page - 1,
+                    size: 3,
+                    categorieId: categorieId
+
+                },
             });
             setRecomponses(res.data.content);
-            setCurrentPage(res.data.number + 1); // 👈 +1 pour repasser en 1-indexé
+            setCurrentPage(res.data.number + 1);
             setLastPage(res.data.totalPages);
         } catch (err) {
             console.log(err);
@@ -29,10 +37,26 @@ export default function RecomponseTable() {
             setLoading(false);
         }
     }
+    const getAllCats = async () => {
+        try {
+            const res = await axiosClient.get('api/admin/categorieRecomponse/listCategorie',{
+                params : {
+                    all:true
+                }
+            });
+            setCat(res.data.data ?? []);
+        } catch (err) {
+            setError(err.response.data.error );
+            setCat([]);
+        }
+    }
+    useEffect(() => {
+        getAllCats();
+    }, []);
 
     useEffect(() => {
-        getAllRecomponses(1, selectedCategorie); // 👈 1, plus 0
-    }, [selectedCategorie]);
+        getAllRecomponses(1, selectCategory);
+    }, [selectCategory]);
     return (
         <div className="min-h-screen bg-slate-50 p-6">
             <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -53,29 +77,33 @@ export default function RecomponseTable() {
                             />
                         </div>
 
-                        <select
+                        <select value={selectCategory}
+                            onChange={(e) => setSelectCategory(e.target.value)}
                             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                         >
                             <option value="">Toutes les catégories</option>
-                            {/*{cat.map((c) => (
+                            {cat.map((c) => (
                                 <option key={c.id} value={c.id}>{c.libelle}</option>
-                            ))}*/}
+                            ))}
                         </select>
 
-                        <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
-                            <Download className="h-4 w-4" />
-                            Exporter
-                        </button>
-
-                        <button
+                        <button onClick={() => setIsModalOpen(true)}
                             className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700"
                         >
                             <Plus className="h-4 w-4" />
-                            Ajouter
+                            Ajouter Un Récompenses
                         </button>
                     </div>
                 </div>
+                {
+                    isModalOpen && (
+                        <ModalAddRecompense  getAllRecomponses={getAllRecomponses}
+                                             onClose={() => setIsModalOpen(false)}
+                                             cat = {cat}
 
+                        />
+                    )
+                }
                 {/* Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -91,14 +119,19 @@ export default function RecomponseTable() {
                         </thead>
 
                         <tbody className="divide-y divide-slate-100">
-                        <DisplayRecomponses recomponses={recomponses} loading={loading}/>
+                        <DisplayRecomponses  getAllRecomponse = {getAllRecomponses}
+                                             recomponses={recomponses}
+                                             cat = {cat}
+                                             loading={loading}
+                        />
                         </tbody>
                     </table>
                 </div>
 
                 {/* Pagination */}
-                <PaginationTable currentPage={currentPage} lastPage={lastPage}
-                                 onPageChange={(page) => getAllRecomponses(page, selectedCategorie)}
+                <PaginationTable currentPage={currentPage}
+                                 lastPage={lastPage}
+                                 onPageChange={(page) => getAllRecomponses(page, selectCategory)}
                 />
             </div>
         </div>

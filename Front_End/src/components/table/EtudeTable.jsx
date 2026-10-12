@@ -3,18 +3,33 @@ import { Search, Download, Plus } from "lucide-react";
 import DisplayRecomponses from "./DisplayRecomponses.jsx";
 import {axiosClient} from "../../api/axios.js";
 import DisplayEtude from "./DisplayEtude.jsx";
+import PaginationTable from "../pagination/PaginationTable.jsx";
+import ModalAddEtude from "../modal/ajoute/ModalAddEtude.jsx";
 
 export default function EtudeTable() {
     const [error, setError] = useState(null);
     const [etude, setEtudes] = useState([]);
+    const [cat , setCat] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [lastPage, setLastPage] = useState(1);
+    const [selectCategory, setSelectCategory] = useState("");
 
-    const getAllEtudess = async () => {
+    const getAllEtudess = async (page = 1,categorieId=selectCategory) => {
         setError([])
         setLoading(true)
         try {
-            const res = await axiosClient.get('api/admin/etude/list');
-            setEtudes(res.data);
+            const res = await axiosClient.get('api/admin/etude/list',{
+                params: {
+                    page: page - 1,
+                    size: 3,
+                    categorieId: categorieId
+                }
+            });
+            setEtudes(res.data.content);
+            setCurrentPage(res.data.number + 1);
+            setLastPage(res.data.totalPages);
         } catch (err) {
             console.log(err);
             setError(err.response.data.error);
@@ -22,9 +37,24 @@ export default function EtudeTable() {
             setLoading(false);
         }
     }
+    const getAllCats = async () => {
+        try {
+            const res = await axiosClient.get('api/admin/categorieEtude/list',{
+                params: {
+                    all:true
+                }
+            });
+            setCat(res.data.data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
     useEffect(() => {
-        getAllEtudess();
-    },[])
+        getAllCats();
+    }, []);
+    useEffect(() => {
+        getAllEtudess(1,selectCategory);
+    },[selectCategory])
     return (
         <div className="min-h-screen bg-slate-50 p-6">
             <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -45,28 +75,34 @@ export default function EtudeTable() {
                             />
                         </div>
 
-                        <select
+                        <select value={selectCategory}
+                                onChange={(e) => setSelectCategory(e.target.value)}
                             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                         >
                             <option value="">Toutes les catégories</option>
-                            {/*{cat.map((c) => (
+                            {cat.map((c) => (
                                 <option key={c.id} value={c.id}>{c.libelle}</option>
-                            ))}*/}
+                            ))}
                         </select>
 
-                        <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
-                            <Download className="h-4 w-4" />
-                            Exporter
-                        </button>
 
-                        <button
+                        <button onClick={() => setIsModalOpen(true)}
                             className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700"
                         >
                             <Plus className="h-4 w-4" />
-                            Ajouter
+                            Ajouter Un Etude
                         </button>
                     </div>
                 </div>
+                {
+                    isModalOpen && (
+                        <ModalAddEtude  getAllEtudess={getAllEtudess}
+                                             onClose={() => setIsModalOpen(false)}
+                                             cat = {cat}
+
+                        />
+                    )
+                }
 
                 {/* Table */}
                 <div className="overflow-x-auto">
@@ -78,33 +114,27 @@ export default function EtudeTable() {
                             <th className="px-4 py-3 font-medium">Description</th>
                             <th className="px-4 py-3 font-medium">Points</th>
                             <th className="px-4 py-3 font-medium">Durré</th>
-                            <th className="px-4 py-3 font-medium">Créée le</th>
+                            <th className="px-4 py-3 font-medium">Date De Création</th>
                             <th className="px-4 py-3 text-right font-medium">Action</th>
                         </tr>
                         </thead>
 
                         <tbody className="divide-y divide-slate-100">
-                        <DisplayEtude etudes={etude} loading={loading}/>
+                        <DisplayEtude
+                            etudes={etude}
+                            loading={loading}
+                            getAllEtudes={getAllEtudess}
+                            cat={cat}
+                        />
                         </tbody>
                     </table>
                 </div>
 
                 {/* Pagination */}
-                {/*<div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                    <p className="text-sm text-slate-500">Affichage de <span className="font-medium text-slate-700">1–5</span> sur <span className="font-medium text-slate-700">24</span></p>
-                    <div className="flex items-center gap-1">
-                        {[1, 2, 3].map((p) => (
-                            <button
-                                key={p}
-                                className={`h-8 w-8 rounded-lg text-sm font-medium ${
-                                    p === 1 ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-slate-100"
-                                }`}
-                            >
-                                {p}
-                            </button>
-                        ))}
-                    </div>
-                </div>*/}
+                <PaginationTable currentPage={currentPage}
+                                 lastPage={lastPage}
+                                 onPageChange={(page) => getAllEtudess(page, "")}
+                />
             </div>
         </div>
     );

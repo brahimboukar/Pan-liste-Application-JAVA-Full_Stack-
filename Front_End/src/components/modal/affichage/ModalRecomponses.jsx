@@ -66,7 +66,7 @@ function ModalRecomponses({ isOpen, setIsOpen, recomponse }) {
                                 <Calendar size={16} className="text-gray-600" />
                                 <span className="text-xs text-gray-600 font-medium">Créée le</span>
                             </div>
-                            <p className="text-sm font-semibold text-gray-700"></p>
+                            <p className="text-sm font-semibold text-gray-700">{formatDate(recomponse.createdAt)}</p>
                         </div>
                     </div>
                     <div className="border-t border-gray-200 mt-4 pt-4 flex gap-2">

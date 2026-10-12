@@ -6,6 +6,10 @@ import com.example.back_End.dto.EvenementResponse;
 import com.example.back_End.model.Evenements;
 import com.example.back_End.repository.EvenementRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +26,10 @@ public class EvenementService {
         return evenementRepository.existsByLibelle(libelle);
     }
 
-    public List<EvenementRequest> listDesEvenement() {
-        List<Evenements> evenements = evenementRepository.findAll();
-        return evenements.stream().map(Evenements::request).collect(Collectors.toList());
+    public Page<EvenementRequest> listDesEvenement(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
+        Page<Evenements> evenements = evenementRepository.findAll(pageable);
+        return evenements.map(Evenements::request);
     }
     public long nbrEvenment() {
         return evenementRepository.count();

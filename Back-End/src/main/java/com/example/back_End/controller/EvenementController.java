@@ -18,9 +18,12 @@ public class EvenementController {
     private final EvenementService service;
 
     @GetMapping("/evenement/list")
-    public ResponseEntity<?> list() {
+    public ResponseEntity<?> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size
+    ) {
         try {
-            return ResponseEntity.ok(service.listDesEvenement());
+            return ResponseEntity.ok(service.listDesEvenement(page,size));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());

@@ -4,10 +4,13 @@ import com.example.back_End.dto.RecomponseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.sql.Blob;
+import java.time.LocalDateTime;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -41,6 +44,10 @@ public class Recomponse {
 
     private String libelle;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
 
     private int point ;
     private boolean status;
@@ -57,6 +64,7 @@ public class Recomponse {
         recomponseRequest.setPoint(point);
         recomponseRequest.setByteImg(img);
         recomponseRequest.setCategorie_id(categorieRecomponse);
+        recomponseRequest.setCreatedAt(createdAt);
         return recomponseRequest;
 
     }

@@ -26,12 +26,15 @@ public class RecomponseController {
     private final RecomponseService service;
 
     @GetMapping("/categorieRecomponse/listCategorie")
-    public ResponseEntity<CategorieRecomponseResponse> listOfCategorie() {
-        CategorieRecomponseResponse response = service.listCategorie();
+    public ResponseEntity<CategorieRecomponseResponse> listOfCategorie(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(defaultValue = "false") boolean all
+    ) {
+        CategorieRecomponseResponse response = service.listCategorie(page, size,all);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
-
     @PostMapping("/categorieRecomponse/createCategorieRecomponse")
     public ResponseEntity <CategorieRecomponseResponse> createCategorie(@RequestBody CategorieRecomponseRequest request) {
         CategorieRecomponseResponse response = service.createCategorie(request);
@@ -92,7 +95,11 @@ public class RecomponseController {
     }
 
     @PutMapping("/recomponse/update/{recomponse_id}")
-    public ResponseEntity<RecomponseResponse> updateRecomponse(RecomponseRequest request , @PathVariable Integer recomponse_id) {
+    public ResponseEntity<RecomponseResponse> updateRecomponse(
+            @PathVariable Integer recomponse_id,
+            @ModelAttribute RecomponseRequest request ,
+            @RequestPart(value = "img", required = false) MultipartFile img
+    ) {
         RecomponseResponse response = service.modifierRecomponse(request,recomponse_id);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);

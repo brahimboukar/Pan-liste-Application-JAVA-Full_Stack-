@@ -20,4 +20,9 @@ public class CategorieRecomponseResponse {
     private int statusCode;
     private String error;
     private List<CategorieRecomponse> data;
+
+    private int currentPage;
+    private int totalPages;
+    private long totalElements;
+    private int pageSize;
 }

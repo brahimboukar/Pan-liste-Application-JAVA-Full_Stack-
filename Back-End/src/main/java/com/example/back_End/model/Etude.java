@@ -33,6 +33,7 @@ public class Etude {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private CategorieEtude categorieEtude;
 
+
     private String libelle;
     private String description;
     private Integer durré;

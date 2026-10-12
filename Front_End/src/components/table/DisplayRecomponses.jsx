@@ -1,11 +1,36 @@
 import React, {useState} from 'react';
-import {CircleStar, Coins, Eye, Gift, Loader, MoreHorizontal} from "lucide-react";
+import {CircleStar, Coins, Eye, Gift, Loader, MoreHorizontal, Pencil, Trash} from "lucide-react";
 import StatusBadge from "../badge/StatusBadge.jsx";
 import ModalRecomponses from "../modal/affichage/ModalRecomponses.jsx";
+import {format} from "date-fns";
+import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
+import {axiosClient} from "../../api/axios.js";
+import ToastSucces from "../toast/ToastSucces.jsx";
+import ModalModificationReco from "../modal/modification/ModalModificationReco.jsx";
 
-function DisplayRecomponses({recomponses , loading}) {
+function DisplayRecomponses({recomponses , loading , getAllRecomponse , cat}) {
     const [openModal, setOpenModal] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
     const [selectedReco, setSelectedReco] = useState(null);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const formatDate = (date) => {
+        return format(new Date(date), "dd MMM, yyyy");
+    };
+    const handleDelete = async () => {
+        setLoadingDelete(true);
+        try {
+            await axiosClient.delete(`api/admin/recomponse/delete/${selectedReco.id}`);
+            setIsDeleteOpen(false);
+            setIsSuccessOpen(true);
+            getAllRecomponse();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingDelete(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -63,8 +88,8 @@ function DisplayRecomponses({recomponses , loading}) {
 
                     <td className="px-4 py-4">
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600">
-                      <Coins className="h-3.5 w-3.5" />
                         {r.point.toLocaleString("fr-FR")}
+                        <Coins className="h-3.5 w-3.5" />
                     </span>
                     </td>
 
@@ -72,42 +97,46 @@ function DisplayRecomponses({recomponses , loading}) {
                         <StatusBadge status={r.status}/>
                     </td>
 
-                    <td className="px-4 py-4 text-sm text-slate-500">{r.date}</td>
+                    <td className="px-4 py-4 text-sm text-slate-500">{formatDate(r.createdAt)}</td>
 
-                    <td className="py-4 px-4 border-r border-gray-200">
+                    <td className="py-4  border-r border-gray-200">
                         <div className="flex items-center gap-0 justify-start">
                             <button
                                 className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
                                 title="Voir" onClick={() => {setOpenModal(true) ; setSelectedReco(r)}}
                             >
-                                <Eye size={18}/>
+                                <Eye size={15}/>
                             </button>
-                            {/*<button
+                            <button
                                 className="p-1 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer"
-                                title="Modifier" onClick={() => {setIsModalOpen(true) ; setSelectedReco(rec)}}
+                                title="Modifier" onClick={() => {setIsModalOpen(true) ; setSelectedReco(r)}}
                             >
-                                <Pencil size={18}/>
+                                <Pencil size={15}/>
                             </button>
-                            <ModalRecomponses recomponse = {selectedReco} isOpen={openModal} onClose={() => setOpenModal(false)} setIsOpen={setOpenModal} />
                             <ModalModificationReco
                                 setIsOpen={setIsModalOpen}
                                 getAllRecomponses = {getAllRecomponse}
                                 isOpen={isModalOpen}
                                 onClose={() => setIsModalOpen(false)}
                                 recomponse = {selectedReco}
+                                cat={cat}
                             />
-                            <ModalDeleteConfirmation loading={loadingDelete} isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} onConfirm={handleDelete} />
-                            <ModalSuccess
-                                isOpen={isSuccessOpen}
-                                onClose={() => { setIsSuccessOpen(false); onClose(); }}
-                                message="Récompense supprimée avec succès !"
+                            <ModalDeleteConfirmation
+                                loading={loadingDelete}
+                                isOpen={isDeleteOpen}
+                                onClose={() => setIsDeleteOpen(false)} onConfirm={handleDelete}
+                            />
+                            <ToastSucces
+                            isOpen={isSuccessOpen}
+                            onClose={() => { setIsSuccessOpen(false); onClose(); }}
+                            message="Récompense supprimée avec succès !"
                             />
                             <button
                                 className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                                title="Supprimer" onClick={() => {setSelectedReco(rec); setIsDeleteOpen(true);}}
+                                title="Supprimer" onClick={() => {setSelectedReco(r); setIsDeleteOpen(true);}}
                             >
-                                <Trash size={18}/>
-                            </button>*/}
+                                <Trash size={15}/>
+                            </button>
                         </div>
                     </td>
                 </tr>

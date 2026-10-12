@@ -3,7 +3,9 @@ package com.example.back_End.model;
 import com.example.back_End.dto.EvenementRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Builder
@@ -24,6 +26,10 @@ public class Evenements {
     private Date dateDebut;
     private Date dateFin;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
     @Lob
     private byte [] img;
 
@@ -35,6 +41,7 @@ public class Evenements {
         request.setDateDebut(dateDebut);
         request.setDateFin(dateFin);
         request.setByteImg(img);
+        request.setCreated_at(createdAt);
         return request;
 
     }

@@ -11,7 +11,13 @@ import com.example.back_End.repository.EtudeRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -30,19 +36,40 @@ public class EtudeService {
         return categorieEtudeRepository.existsByLibelle(libelle);
     }
 
-    public CategorieEtudeResponse listCategorie() {
+    public CategorieEtudeResponse listCategorie(int page , int size ,boolean all) {
         try {
-            List<CategorieEtude> list = categorieEtudeRepository.findAll();
-            if(list.isEmpty()) {
+            Pageable pageable = PageRequest.of(page , size , Sort.by("createdAt").descending());
+
+            Page<CategorieEtude> pageResult = categorieEtudeRepository.findAll(pageable);
+            if(pageResult.isEmpty()) {
                 return CategorieEtudeResponse.builder()
                         .msg("Aucun Catégorie ")
-                        .statusCode(204)
+                        .data(List.of())
+                        .currentPage(page)
+                        .totalPages(0)
+                        .totalElements(0)
+                        .pageSize(size)
+                        .build();
+            }
+            if(all) {
+                List <CategorieEtude> list = categorieEtudeRepository.findAll(Sort.by("libelle"));
+                return CategorieEtudeResponse.builder()
+                        .msg("Liste Des Categorie Etude : ")
+                        .statusCode(200)
+                        .data(list)
+                        .currentPage(0)
+                        .totalPages(1)
+                        .totalElements(list.size())
                         .build();
             }
             return CategorieEtudeResponse.builder()
                     .msg("Liste Des Categorie Etude : ")
                     .statusCode(200)
-                    .data(list)
+                    .data(pageResult.getContent())
+                    .currentPage(pageResult.getNumber())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .pageSize(pageResult.getSize())
                     .build();
 
         }
@@ -88,12 +115,24 @@ public class EtudeService {
                         .statusCode(404)
                         .build();
             }
+            boolean isCatUsed = etudeRepository.existsByCategorieEtudeId(id);
+            if(isCatUsed) {
+                return CategorieEtudeResponse.builder()
+                        .error("cette catégorie est encore utilisée par une ou plusieurs études")
+                        .statusCode(409)
+                        .build();
+            }
             categorieEtudeRepository.deleteById(id);
             return CategorieEtudeResponse.builder()
                     .msg("Catégorie Supprimer  Avec Succé")
                     .statusCode(200)
                     .build();
 
+        } catch (DataIntegrityViolationException e) {
+            return CategorieEtudeResponse.builder()
+                    .error("cette catégorie est encore utilisée par une ou plusieurs études")
+                    .statusCode(409)
+                    .build();
         } catch (Exception e) {
             return CategorieEtudeResponse.builder()
                     .error(e.getMessage())
@@ -144,9 +183,13 @@ public class EtudeService {
         }
     }
 
-    public List<EtudeRequest> listDesEtude() {
-        List <Etude> etudes = etudeRepository.findAll();
-        return etudes.stream().map(Etude::getRequest).collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public Page<EtudeRequest> listDesEtude(int page , int size , Integer categorieId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page <Etude> etudes = (categorieId!=null)
+                ?etudeRepository.findByCategorieEtudeId(categorieId,pageable)
+                : etudeRepository.findAll(pageable);
+        return etudes.map(Etude::getRequest);
     }
 
     public long nbrEtude() {

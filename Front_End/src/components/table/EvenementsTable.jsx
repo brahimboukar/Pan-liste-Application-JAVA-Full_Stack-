@@ -4,18 +4,28 @@ import DisplayRecomponses from "./DisplayRecomponses.jsx";
 import {axiosClient} from "../../api/axios.js";
 import DisplayEtude from "./DisplayEtude.jsx";
 import DisplayEvenements from "./DisplayEvenements.jsx";
+import PaginationTable from "../pagination/PaginationTable.jsx";
 
 export default function EvenementsTable() {
     const [error, setError] = useState(null);
     const [evenements, setEvenements] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [lastPage, setLastPage] = useState(1);
 
-    const getAllEvenements = async () => {
+    const getAllEvenements = async (page=1) => {
         setError([])
         setLoading(true)
         try {
-            const res = await axiosClient.get('api/admin/evenement/list');
-            setEvenements(res.data);
+            const res = await axiosClient.get('api/admin/evenement/list',{
+                params : {
+                    page: page - 1,
+                    size: 3
+                }
+            });
+            setEvenements(res.data.content);
+            setCurrentPage(res.data.number + 1);
+            setLastPage(res.data.totalPages);
         } catch (err) {
             console.log(err);
             setError(err.response.data.error);
@@ -24,7 +34,7 @@ export default function EvenementsTable() {
         }
     }
     useEffect(() => {
-        getAllEvenements();
+        getAllEvenements(1);
     },[])
     return (
         <div className="min-h-screen bg-slate-50 p-6">
@@ -46,25 +56,13 @@ export default function EvenementsTable() {
                             />
                         </div>
 
-                        <select
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                        >
-                            <option value="">Toutes les catégories</option>
-                            {/*{cat.map((c) => (
-                                <option key={c.id} value={c.id}>{c.libelle}</option>
-                            ))}*/}
-                        </select>
 
-                        <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
-                            <Download className="h-4 w-4" />
-                            Exporter
-                        </button>
 
                         <button
                             className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700"
                         >
                             <Plus className="h-4 w-4" />
-                            Ajouter
+                            Ajouter Un Evenement
                         </button>
                     </div>
                 </div>
@@ -90,21 +88,10 @@ export default function EvenementsTable() {
                 </div>
 
                 {/* Pagination */}
-                {/*<div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                    <p className="text-sm text-slate-500">Affichage de <span className="font-medium text-slate-700">1–5</span> sur <span className="font-medium text-slate-700">24</span></p>
-                    <div className="flex items-center gap-1">
-                        {[1, 2, 3].map((p) => (
-                            <button
-                                key={p}
-                                className={`h-8 w-8 rounded-lg text-sm font-medium ${
-                                    p === 1 ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-slate-100"
-                                }`}
-                            >
-                                {p}
-                            </button>
-                        ))}
-                    </div>
-                </div>*/}
+                <PaginationTable currentPage={currentPage}
+                                 lastPage={lastPage}
+                                 onPageChange={(page) => getAllEvenements(page)}
+                />
             </div>
         </div>
     );

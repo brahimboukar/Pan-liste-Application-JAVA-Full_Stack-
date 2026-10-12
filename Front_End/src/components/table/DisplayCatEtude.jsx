@@ -1,7 +1,53 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {CircleStar, Loader, Trash2} from "lucide-react";
+import {format} from "date-fns";
+import {axiosClient} from "../../api/axios.js";
+import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
+import ToastSucces from "../toast/ToastSucces.jsx";
+import ModalErreur from "../modal/erreur/ModalErreur.jsx";
 
-function DisplayCatEtude({categorieEtude , error,loading}) {
+function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage}) {
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [selectedCat, setSelectedCat] = useState(null);
+    const [loadingDelete, setLoadingDelete] = useState(false);
+    const [errors, setErrors] = useState('');
+    const [isErrorOpen, setIsErrorOpen] = useState(false);
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+
+    const formatDate = (date) => {
+        return format(new Date(date), "dd MMM, yyyy");
+    };
+    const handleDelete = async () => {
+        setErrors('')
+        setLoadingDelete(true);
+        try {
+            await axiosClient.delete(`api/admin/categorieEtude/delete/${selectedCat.id}`);
+            const newPage = categorieEtude.length === 1 && currentPage > 0
+                ? currentPage - 1 : 0;
+            setIsDeleteOpen(false);
+            setIsSuccessOpen(true);
+            getAllCategorie(newPage);
+        } catch (err) {
+            if(err.response.data.statusCode === 409) {
+                setErrors(err.response.data.error );
+                setIsDeleteOpen(false);
+                setIsErrorOpen(true);
+            } else if (err.response.data.statusCode === 404) {
+                setErrors(err.response.data.error );
+                setIsDeleteOpen(false);
+                setIsErrorOpen(true);
+            } else if (err.response.data.statusCode === 500) {
+                setErrors(err.response.data.error );
+                setIsDeleteOpen(false);
+                setIsErrorOpen(true);
+            }
+        } finally {
+            setLoadingDelete(false);
+        }
+    }
+    const handleSuccessClose = () => {
+        setIsSuccessOpen(false);
+    }
     if (loading) {
         return (
             <tr>
@@ -38,16 +84,39 @@ function DisplayCatEtude({categorieEtude , error,loading}) {
                 >
                     <td className="py-3 px-4 text-sm font-medium text-violet-600">{item.id}</td>
                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{item.libelle}</td>
+                    <td className="px-4 py-4">
+                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600">
+                            {formatDate(item.createdAt)}
+                        </span>
+                    </td>
                     <td className="py-3 px-4">
                         <button
                             title="Supprimer"
                             className="p-1.5 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-colors"
+                            onClick={() => {setSelectedCat(item) ; setIsDeleteOpen(true) }}
                         >
                             <Trash2 size={14} />
                         </button>
                     </td>
                 </tr>
             ))}
+            <ModalDeleteConfirmation
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={handleDelete}
+                loading={loadingDelete}
+            />
+            <ToastSucces
+                isOpen={isSuccessOpen}
+                onClose={handleSuccessClose}
+                message="Catégorie supprimée avec succès !"
+            />
+            <ModalErreur
+                isOpen={isErrorOpen}
+                onClose={() => setIsErrorOpen(false)}
+                message={errors}
+                bigmessage="Impossible de supprimer !!"
+            />
         </>
     );
 }
