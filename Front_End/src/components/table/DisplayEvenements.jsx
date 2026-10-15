@@ -1,15 +1,49 @@
 import React, {useState} from 'react';
-import {Calendar, CalendarSync, CircleStar, Coins, Eye, Gift, Loader, MoreHorizontal, Timer, Trash} from "lucide-react";
+import {
+    Calendar,
+    CalendarSync,
+    CircleStar,
+    Coins,
+    Eye,
+    Gift,
+    Loader,
+    MoreHorizontal,
+    Pencil,
+    Timer,
+    Trash
+} from "lucide-react";
 import StatusBadge from "../badge/StatusBadge.jsx";
 import {format} from "date-fns";
 import ModalEvenments from "../modal/affichage/ModalEvenments.jsx";
+import ModalModificationEvenement from "../modal/modification/ModalModificationEvenement.jsx";
+import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
+import {axiosClient} from "../../api/axios.js";
+import ToastSucces from "../toast/ToastSucces.jsx";
 
-function DisplayEvenements({evenements , loading}) {
+function DisplayEvenements({evenements , loading , getAllEvenements}) {
     const [openModal, setOpenModal] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
     const [selectedEven, setSelectedEven] = useState(null);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const formatDate = (date) => {
         return format(new Date(date), "dd MMM, yyyy");
     };
+
+    const handleDelete = async () => {
+        setLoadingDelete(true);
+        try {
+            await axiosClient.delete(`api/admin/evenement/delete/${selectedEven.id}`);
+            setIsDeleteOpen(false);
+            setIsSuccessOpen(true);
+            getAllEvenements();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingDelete(false);
+        }
+    }
 
     if (loading) {
         return (
@@ -88,12 +122,18 @@ function DisplayEvenements({evenements , loading}) {
                             >
                                 <Eye size={15}/>
                             </button>
-                            {/*<button
+                            <button
+                                className="p-1 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer"
+                                title="Modifier" onClick={() => {setIsModalOpen(true) ; setSelectedEven(r)}}
+                            >
+                                <Pencil size={15}/>
+                            </button>
+                            <button
                                 className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                                title="Supprimer" onClick={() => {setSelectedEtu(r); setIsDeleteOpen(true);}}
+                                title="Supprimer" onClick={() => {setSelectedEven(r); setIsDeleteOpen(true);}}
                             >
                                 <Trash size={15}/>
-                            </button>*/}
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -102,6 +142,22 @@ function DisplayEvenements({evenements , loading}) {
                             isOpen={openModal}
                             onClose={() => setOpenModal(false)} setIsOpen={setOpenModal}
             />
+            <ModalModificationEvenement setIsOpen={setIsModalOpen}
+                           getAllEvenements = {getAllEvenements}
+                           isOpen={isModalOpen}
+                           onClose={() => setIsModalOpen(false)}
+                           evenement = {selectedEven}
+            />
+                <ModalDeleteConfirmation
+                    loading={loadingDelete}
+                    isOpen={isDeleteOpen}
+                    onClose={() => setIsDeleteOpen(false)} onConfirm={handleDelete}
+                />
+                <ToastSucces
+                    isOpen={isSuccessOpen}
+                    onClose={() => { setIsSuccessOpen(false); onClose(); }}
+                    message="Evénement supprimée avec succès !"
+                />
         </>
     );
 }

@@ -27,7 +27,6 @@ function DisplayEtude({etudes , loading , getAllEtudes , cat}) {
             setIsDeleteOpen(false);
             setIsSuccessOpen(true);
             getAllEtudes();
-            console.log(selectedEtu);
         } catch (error) {
             console.log(error);
         } finally {

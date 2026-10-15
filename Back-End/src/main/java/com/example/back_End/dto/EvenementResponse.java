@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -24,7 +25,10 @@ public class EvenementResponse {
 
     private String libelle;
     private String description;
+
+    @DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date dateDebut;
+    @DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date dateFin;
 
 }

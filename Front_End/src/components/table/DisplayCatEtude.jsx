@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {CircleStar, Loader, Trash2} from "lucide-react";
+import {CircleStar, Loader, Pencil, Trash2} from "lucide-react";
 import {format} from "date-fns";
 import {axiosClient} from "../../api/axios.js";
 import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
@@ -13,6 +13,7 @@ function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage
     const [errors, setErrors] = useState('');
     const [isErrorOpen, setIsErrorOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
 
     const formatDate = (date) => {
         return format(new Date(date), "dd MMM, yyyy");
@@ -82,21 +83,28 @@ function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage
                     key={item.id}
                     className="border-b last:border-b-0 border-gray-100 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors"
                 >
-                    <td className="py-3 px-4 text-sm font-medium text-violet-600">{item.id}</td>
                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{item.libelle}</td>
                     <td className="px-4 py-4">
                         <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600">
                             {formatDate(item.createdAt)}
                         </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-4">
+                        <div className="flex justify-end">
+                        <button
+                            className="p-1 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer"
+                            title="Modifier" onClick={() => {setIsModalOpen(true) ; setSelectedCat(item)}}
+                        >
+                            <Pencil size={15}/>
+                        </button>
                         <button
                             title="Supprimer"
-                            className="p-1.5 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-colors"
+                            className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
                             onClick={() => {setSelectedCat(item) ; setIsDeleteOpen(true) }}
                         >
-                            <Trash2 size={14} />
+                            <Trash2 size={15} />
                         </button>
+                        </div>
                     </td>
                 </tr>
             ))}
@@ -117,6 +125,12 @@ function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage
                 message={errors}
                 bigmessage="Impossible de supprimer !!"
             />
+            {/*< setIsOpen={setIsModalOpen}
+            getAllEvenements = {getAllEvenements}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            evenement = {selectedEven}
+            />*/}
         </>
     );
 }

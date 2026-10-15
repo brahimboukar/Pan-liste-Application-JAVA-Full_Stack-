@@ -6,8 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -21,8 +23,12 @@ public class EvenementRequest {
     private Integer id;
     private String libelle;
     private String description;
-    private Date dateDebut;
-    private Date dateFin;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateDebut;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateFin;
+
     private LocalDateTime created_at;
 
     @Lob

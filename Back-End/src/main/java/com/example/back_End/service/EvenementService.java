@@ -6,6 +6,7 @@ import com.example.back_End.dto.EvenementResponse;
 import com.example.back_End.model.Evenements;
 import com.example.back_End.repository.EvenementRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +49,7 @@ public class EvenementService {
             evenements.setDescription(request.getDescription());
             evenements.setDateDebut(request.getDateDebut());
             evenements.setDateFin(request.getDateFin());
-            if(!request.getDateFin().after(request.getDateDebut())) {
+            if (!request.getDateFin().isAfter(request.getDateDebut())) {
                 return EvenementResponse.builder()
                         .error("dateFin doit être postérieure à dateDebut")
                         .statusCode(400)
@@ -93,7 +94,12 @@ public class EvenementService {
         }
     }
 
+    @CacheEvict(value = "evenements", allEntries = true)
     public EvenementResponse modifierEvenement(EvenementRequest request , Integer id) {
+        System.out.println("id=" + id
+                + " | libelle=" + request.getLibelle()
+                + " | debut=" + request.getDateDebut()
+                + " | fin=" + request.getDateFin());
         try {
             Optional<Evenements> evenements = evenementRepository.findById(id);
             if(!evenements.isPresent()) {
@@ -102,17 +108,25 @@ public class EvenementService {
                         .statusCode(404)
                         .build();
             }
-            Evenements eve = evenements.get();
-            eve.setLibelle(request.getLibelle());
-            eve.setDescription(request.getDescription());
-            eve.setDateDebut(request.getDateDebut());
-            eve.setDateFin(request.getDateFin());
-            if(!request.getDateFin().after(request.getDateDebut())) {
+            if (request.getDateDebut() == null || request.getDateFin() == null) {
+                return EvenementResponse.builder()
+                        .error("Les dates sont obligatoires")
+                        .statusCode(400)
+                        .build();
+            }
+            if (!request.getDateFin().isAfter(request.getDateDebut())) {
                 return EvenementResponse.builder()
                         .error("dateFin doit être postérieure à dateDebut")
                         .statusCode(400)
                         .build();
             }
+
+            Evenements eve = evenements.get();
+            eve.setLibelle(request.getLibelle());
+            eve.setDescription(request.getDescription());
+            eve.setDateDebut(request.getDateDebut());
+            eve.setDateFin(request.getDateFin());
+
             if(request.getImg()!= null && !request.getImg().isEmpty()) {
                 eve.setImg(request.getImg().getBytes());
             }

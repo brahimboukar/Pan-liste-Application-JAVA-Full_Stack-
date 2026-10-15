@@ -4,7 +4,9 @@ import com.example.back_End.dto.EvenementRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -23,8 +25,10 @@ public class Evenements {
 
     private String libelle;
     private String description;
-    private Date dateDebut;
-    private Date dateFin;
+
+    private LocalDate  dateDebut;
+
+    private LocalDate dateFin;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

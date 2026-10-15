@@ -88,7 +88,6 @@ function CatEtudeTable() {
                     <table className="w-full min-w-[300px]">
                         <thead>
                         <tr className="border-b border-gray-100 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-800/50">
-                            <th className="w-16 text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
                             <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Libellé</th>
                             <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date De Création</th>
                             <th className="w-20 text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>

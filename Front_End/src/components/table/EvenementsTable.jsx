@@ -1,15 +1,15 @@
 import {useEffect, useState} from "react";
 import { Search, Download, Plus } from "lucide-react";
-import DisplayRecomponses from "./DisplayRecomponses.jsx";
 import {axiosClient} from "../../api/axios.js";
-import DisplayEtude from "./DisplayEtude.jsx";
 import DisplayEvenements from "./DisplayEvenements.jsx";
 import PaginationTable from "../pagination/PaginationTable.jsx";
+import ModalAddEvenments from "../modal/ajoute/ModalAddEvenments.jsx";
 
 export default function EvenementsTable() {
     const [error, setError] = useState(null);
     const [evenements, setEvenements] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [lastPage, setLastPage] = useState(1);
 
@@ -42,8 +42,8 @@ export default function EvenementsTable() {
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-900">Etudes</h2>
-                        <p className="mt-0.5 text-sm text-slate-500">Gérez les Etudes de votre plateforme</p>
+                        <h2 className="text-lg font-semibold text-slate-900">évenements</h2>
+                        <p className="mt-0.5 text-sm text-slate-500">Gérez les évenements de votre plateforme</p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -58,14 +58,22 @@ export default function EvenementsTable() {
 
 
 
-                        <button
+                        <button onClick={() => setIsModalOpen(true)}
                             className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700"
                         >
                             <Plus className="h-4 w-4" />
-                            Ajouter Un Evenement
+                            Ajouter Un évenements
                         </button>
                     </div>
                 </div>
+                {
+                    isModalOpen && (
+                        <ModalAddEvenments  getAllEvenements={getAllEvenements}
+                                        onClose={() => setIsModalOpen(false)}
+
+                        />
+                    )
+                }
 
                 {/* Table */}
                 <div className="overflow-x-auto">
@@ -82,7 +90,11 @@ export default function EvenementsTable() {
                         </thead>
 
                         <tbody className="divide-y divide-slate-100">
-                        <DisplayEvenements evenements={evenements} loading={loading}/>
+                        <DisplayEvenements
+                            evenements={evenements}
+                            loading={loading}
+                            getAllEvenements={getAllEvenements}
+                        />
                         </tbody>
                     </table>
                 </div>
