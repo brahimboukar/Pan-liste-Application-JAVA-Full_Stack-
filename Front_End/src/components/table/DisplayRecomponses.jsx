@@ -141,7 +141,11 @@ function DisplayRecomponses({recomponses , loading , getAllRecomponse , cat}) {
                     </td>
                 </tr>
             ))}
-            <ModalRecomponses recomponse = {selectedReco} isOpen={openModal} onClose={() => setOpenModal(false)} setIsOpen={setOpenModal} />
+            <ModalRecomponses
+                recomponse = {selectedReco}
+                isOpen={openModal}
+                onClose={() => setOpenModal(false)} setIsOpen={setOpenModal}
+            />
         </>
     );
 }

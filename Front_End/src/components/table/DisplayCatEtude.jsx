@@ -5,6 +5,7 @@ import {axiosClient} from "../../api/axios.js";
 import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
 import ToastSucces from "../toast/ToastSucces.jsx";
 import ModalErreur from "../modal/erreur/ModalErreur.jsx";
+import ModalModificationCatEtude from "../modal/modification/ModalModificationCatEtude.jsx";
 
 function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage}) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -125,12 +126,14 @@ function DisplayCatEtude({categorieEtude ,loading , getAllCategorie, currentPage
                 message={errors}
                 bigmessage="Impossible de supprimer !!"
             />
-            {/*< setIsOpen={setIsModalOpen}
-            getAllEvenements = {getAllEvenements}
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            evenement = {selectedEven}
-            />*/}
+            <ModalModificationCatEtude
+                setIsOpen={setIsModalOpen}
+                getAllCategorie={getAllCategorie}
+                currentPage={currentPage}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                cat={selectedCat}
+            />
         </>
     );
 }

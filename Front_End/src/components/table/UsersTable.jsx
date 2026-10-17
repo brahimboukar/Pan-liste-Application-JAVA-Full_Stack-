@@ -2,18 +2,33 @@ import React, {useEffect, useState} from 'react';
 import {Search} from "lucide-react";
 import {axiosClient} from "../../api/axios.js";
 import DisplayPaneliste from "./DisplayPaneliste.jsx";
+import PaginationTable from "../pagination/PaginationTable.jsx";
+import ModalAddPaneliste from "../modal/ajoute/ModalAddPaneliste.jsx";
 
 function UsersTable() {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize] = useState(3);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
-    const getUsers = async () => {
+    const getUsers = async (page = currentPage) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await axiosClient.get('api/admin/panélistes');
-            setUsers(res.data);
+            const res = await axiosClient.get('api/admin/panélistes/list', {
+                params: {
+                    page : page,
+                    size : pageSize
+                }
+            });
+            setUsers(res.data.data);
+            setTotalPages(res.data.totalPages);
+            setTotalElements(res.data.totalElements);
+            setCurrentPage(res.data.currentPage);
         } catch (err) {
             setError(err.response?.data?.error );
             setUsers([]);
@@ -22,9 +37,12 @@ function UsersTable() {
             setLoading(false);
         }
     }
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    }
     useEffect(() => {
-        getUsers();
-    },[])
+        getUsers(currentPage);
+    },[currentPage])
     return (
         <div className="p-6 min-h-screen bg-gray-50">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -58,7 +76,7 @@ function UsersTable() {
                         <button className="border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50">
                             Exporter
                         </button>
-                        <button
+                        <button onClick = {() => setIsModalOpen(true)}
 
                             className="bg-indigo-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-indigo-700 font-medium cursor-pointer"
                         >
@@ -67,12 +85,12 @@ function UsersTable() {
                     </div>
                 </div>
 
-                {/*{isModalOpen && (
+                {isModalOpen && (
                     <ModalAddPaneliste
-                        getAllPaneliste={() => getAllUsers(currentPage, searchTerm)}
+                        getAllPaneliste={() => getUsers(currentPage)}
                         onClose={() => setIsModalOpen(false)}
                     />
-                )}*/}
+                )}
 
                 <div className="overflow-x-auto">
                     <table className="w-full">
@@ -94,16 +112,18 @@ function UsersTable() {
                         <DisplayPaneliste
                             users={users}
                             loading={loading}
+                            currentPage={currentPage}
+                            getAllUsers={getUsers}
                         />
                         </tbody>
                     </table>
 
-                   {/* <PaginationTable
-                        currentPage={currentPage}
-                        lastPage={lastPage}
-                        total={total}
-                        onPageChange={handlePageChange}
-                    />*/}
+                    <PaginationTable
+                        currentPage={currentPage + 1}
+                        lastPage={totalPages}
+                        total={totalElements}
+                        onPageChange={(page) => handlePageChange(page - 1)}
+                    />
                 </div>
             </div>
         </div>

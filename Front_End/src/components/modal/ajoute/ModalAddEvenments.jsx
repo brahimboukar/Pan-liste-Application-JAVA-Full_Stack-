@@ -67,15 +67,14 @@ function ModalAddEvenments({getAllEvenements , onClose}) {
         setPreview(null);
         form.setValue('img', undefined, { shouldValidate: true });
     };
-    const formatDate = (d) => d.replace(/-/g, '/');
     const onSubmit = async (values) => {
         setErrors("")
         setLoading(true);
         const fd = new FormData();
         fd.append('libelle', values.libelle);
         fd.append('description', values.description);
-        fd.append('dateDebut', formatDate(values.dateDebut));
-        fd.append('dateFin', formatDate(values.dateFin));
+        fd.append('dateDebut', values.dateDebut);
+        fd.append('dateFin', values.dateFin);
         if(imgFile) fd.append('img', imgFile);
         try{
             await axiosClient.post(`api/admin/evenement/ajouter`,fd);

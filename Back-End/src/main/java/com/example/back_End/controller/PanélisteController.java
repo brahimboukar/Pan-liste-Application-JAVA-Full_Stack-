@@ -1,8 +1,6 @@
 package com.example.back_End.controller;
 
-import com.example.back_End.dto.AuthenticationResponse;
-import com.example.back_End.dto.PanélisteResponse;
-import com.example.back_End.dto.RegisterRequest;
+import com.example.back_End.dto.*;
 import com.example.back_End.model.Role;
 import com.example.back_End.model.User;
 import com.example.back_End.repository.UserRepository;
@@ -26,20 +24,30 @@ public class PanélisteController {
     private final PanélisteService panélisteService;
     private final UserRepository userRepository;
 
-    @GetMapping("/panélistes")
-    public ResponseEntity<?> getAllPanélistes() {
-        List<User> users = panélisteService.getAllPanéliste();
-        if(users.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-
-                    .body("Liste Des Panéliste est vide");
-        }
-        return ResponseEntity.ok(users);
+    @GetMapping("/panélistes/list")
+    public ResponseEntity<PanélistePageResponse> getAllPanélistes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size
+    ) {
+       PanélistePageResponse response = panélisteService.listPanéliste(page,size);
+       return ResponseEntity.status(response.getStatusCode())
+               .body(response);
+    }
+    @GetMapping("/panélistes/sexes")
+    public ResponseEntity<SexesResponse> getAllSexes() {
+        SexesResponse response = panélisteService.listSexeOfPanéliste();
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response);
+    }
+    @GetMapping("/panélistes/region")
+    public ResponseEntity<RegionResponse> getAllRegions() {
+        RegionResponse response = panélisteService.listRegionOfPanéliste();
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response);
     }
 
 
-    @GetMapping("/nbrPaneliste")
+   /* @GetMapping("/nbrPaneliste")
     public ResponseEntity<?> nbrUsers() {
         try {
             return ResponseEntity.status(200).body(panélisteService.nbrAllUser());
@@ -68,14 +76,15 @@ public class PanélisteController {
         AuthenticationResponse response = panélisteService.createPanélist(request);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
-    }
+    } */
 
-    @DeleteMapping("/delete/{user_id}")
-    public ResponseEntity<PanélisteResponse> deletePanéliste(@PathVariable Integer user_id){
-        PanélisteResponse response = panélisteService.deletePanéliste(user_id);
+    @DeleteMapping("/panéliste/delete/{user_id}")
+    public ResponseEntity<PanélistePageResponse> deletePanéliste(@PathVariable Integer user_id){
+        PanélistePageResponse response = panélisteService.deletePanéliste(user_id);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
+    /*
     @PutMapping("/block/{user_Id}")
     public ResponseEntity<PanélisteResponse> blockedPanéliste(@PathVariable Integer user_Id){
         PanélisteResponse response = panélisteService.bloquedPanéliste(user_Id);
@@ -96,5 +105,7 @@ public class PanélisteController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
+
+    */
 
 }

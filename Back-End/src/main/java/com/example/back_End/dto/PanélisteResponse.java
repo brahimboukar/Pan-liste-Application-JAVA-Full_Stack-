@@ -1,13 +1,9 @@
 package com.example.back_End.dto;
 
-import com.example.back_End.model.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -16,7 +12,17 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PanélisteResponse {
 
-    private String msg;
-    private int statusCode;
-    private String error;
+    private Integer id;
+    private String nom;
+    private String prenom;
+    private String email;
+    private int points;
+    private int age;
+    private String sexe;
+    private String region;
+    private String fonction;
+    private String fonctionDetailler;
+    private String telephone;
+    private boolean blocked;
+    private LocalDateTime dateCreation;
 }

@@ -140,6 +140,29 @@ public class EtudeService {
                     .build();
         }
     }
+    public CategorieEtudeResponse modifierCatEtude(CategorieEtudeRequest request , Integer id) {
+        try{
+            Optional<CategorieEtude> categorieEtude = categorieEtudeRepository.findById(id);;
+            if(!categorieEtude.isPresent()) {
+                return CategorieEtudeResponse.builder()
+                        .error("Catégorie Etude N'exist Pas")
+                        .statusCode(404)
+                        .build();
+            }
+            CategorieEtude catEtude = categorieEtude.get();
+            catEtude.setLibelle(request.getLibelle());
+            categorieEtudeRepository.save(catEtude);
+            return CategorieEtudeResponse.builder()
+                    .msg("Catégorie Etude Modifier Avec Succcé")
+                    .statusCode(200)
+                    .build();
+        } catch (Exception e) {
+            return CategorieEtudeResponse.builder()
+                    .error(e.getMessage())
+                    .statusCode(500)
+                    .build();
+        }
+    }
     public boolean alreadyExistLibelle(String libelle) {
         return etudeRepository.existsByLibelle(libelle);
     }

@@ -1,13 +1,19 @@
 package com.example.back_End.service;
 
 import com.example.back_End.config.JwtService;
-import com.example.back_End.dto.AuthenticationResponse;
-import com.example.back_End.dto.PanélisteResponse;
-import com.example.back_End.dto.RegisterRequest;
+import com.example.back_End.dto.*;
+import com.example.back_End.model.Region;
 import com.example.back_End.model.Role;
+import com.example.back_End.model.Sexe;
 import com.example.back_End.model.User;
+import com.example.back_End.repository.RegionRepository;
+import com.example.back_End.repository.SexeRepository;
 import com.example.back_End.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +33,8 @@ public class PanélisteService {
 
     private final JwtService jwtService;
 
+    private final SexeRepository sexeRepository;
+    private final RegionRepository regionRepository;
 
 
     public boolean emailAlreadyExists(String email) {
@@ -34,19 +42,109 @@ public class PanélisteService {
     }
 
 
-    public List<User> getAllPanéliste() {
-        List<User> result = repository.findAll();
-        List<User> filterUser = result.stream()
-                .filter(user -> user.getRole() != Role.ADMIN)
-                .toList();
-        return filterUser;
+    private PanélisteResponse toResponse(User u) {
+        return PanélisteResponse.builder()
+                .id(u.getId())
+                .nom(u.getNom())
+                .prenom(u.getPrenom())
+                .email(u.getEmail())
+                .points(u.getPoints())
+                .age(u.getAge())
+                .sexe(u.getSexe() != null ? u.getSexe().getLibelle() : null)
+                .region(u.getRegion() != null ? u.getRegion().getLibelle() : null)
+                .fonction(u.getFonction() != null ? u.getFonction().getLibelle() : null)
+                .fonctionDetailler(u.getFonctionDeteiller() != null ? u.getFonctionDeteiller().getLibelle() : null)
+                .telephone(u.getTelephone())
+                .blocked(u.isBlocked())
+                .dateCreation(u.getCreatedAt())
+                .build();
+    }
+    public PanélistePageResponse listPanéliste(int page, int size) {
+        try{
+            Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
+
+            Page<User> pageResult = repository.findByRoleNot(Role.ADMIN,pageable);
+            if(pageResult.isEmpty()) {
+                return PanélistePageResponse.builder()
+                        .msg("Aucun Panéliste")
+                        .statusCode(204)
+                        .data(List.of())
+                        .currentPage(page)
+                        .totalPages(0)
+                        .totalElements(0)
+                        .pageSize(size)
+                        .build();
+            }
+            List<PanélisteResponse> data = pageResult.getContent().stream()
+                    .map(this::toResponse)
+                    .toList();
+            return PanélistePageResponse.builder()
+                    .statusCode(200)
+                    .data(data)
+                    .currentPage(pageResult.getNumber())
+                    .totalPages(pageResult.getTotalPages())
+                    .totalElements(pageResult.getTotalElements())
+                    .pageSize(pageResult.getSize())
+                    .build();
+        } catch (Exception e) {
+            return PanélistePageResponse.builder()
+                    .statusCode(500)
+                    .error(e.getMessage())
+                    .build();
+        }
+    }
+    public SexesResponse listSexeOfPanéliste() {
+        try{
+            List<Sexe> sexes = sexeRepository.findAll();
+            if(sexes.isEmpty()) {
+                return SexesResponse.builder()
+                        .msg("Lists Sexes Vide")
+                        .data(sexes)
+                        .statusCode(204)
+                        .build();
+            }
+            return SexesResponse.builder()
+                    .data(sexes)
+                    .statusCode(200)
+                    .build();
+
+        } catch (Exception e) {
+            return SexesResponse.builder()
+                    .msg(e.getMessage())
+                    .statusCode(500)
+                    .build();
+
+
+        }
+    }
+    public RegionResponse listRegionOfPanéliste() {
+        try{
+            List<Region> regions = regionRepository.findAll();
+            if(regions.isEmpty()) {
+                return RegionResponse.builder()
+                        .msg("Lists Sexes Vide")
+                        .data(regions)
+                        .statusCode(204)
+                        .build();
+            }
+            return RegionResponse.builder()
+                    .data(regions)
+                    .statusCode(200)
+                    .build();
+        } catch (Exception e) {
+            return RegionResponse.builder()
+                    .msg(e.getMessage())
+                    .statusCode(500)
+                    .build();
+
+        }
     }
 
     public long nbrAllUser() {
         return repository.countByRole(Role.USER);
     }
 
-    public AuthenticationResponse createPanélist(RegisterRequest request) {
+    /*public AuthenticationResponse createPanélist(RegisterRequest request) {
 
         try {
             LocalDate dateNaissance = request.getDateNaissance();
@@ -97,32 +195,32 @@ public class PanélisteService {
                     .error(e.getMessage())
                     .build();
         }
-    }
+    } */
 
 
-    public PanélisteResponse deletePanéliste(Integer id) {
+    public PanélistePageResponse deletePanéliste(Integer id) {
         Optional<User> user = repository.findById(id);
         if (!user.isPresent()) {
-            return PanélisteResponse.builder()
+            return PanélistePageResponse.builder()
                     .statusCode(404)
                     .msg("Panéliste N'éxiste Pas ")
                     .build();
         }
         if(user.get().getRole() == Role.ADMIN) {
-            return PanélisteResponse.builder()
+            return PanélistePageResponse.builder()
                     .statusCode(403)
                     .msg("Vous avez pas cette privilége")
                     .build();
         }
         repository.deleteById(id);
-        return PanélisteResponse.builder()
+        return PanélistePageResponse.builder()
                 .msg("Panéliste Supprimer avec succé")
                 .statusCode(200)
                 .build();
 
     }
 
-    public PanélisteResponse bloquedPanéliste(Integer id) {
+    /*public PanélisteResponse bloquedPanéliste(Integer id) {
         Optional<User> user= repository.findById(id);
         if (!user.isPresent()) {
             return PanélisteResponse.builder()
@@ -143,9 +241,9 @@ public class PanélisteService {
                 .statusCode(200)
                 .msg("Panéliste bloqué avec succès")
                 .build();
-    }
+    } */
 
-    public PanélisteResponse débloquerPanéliste(Integer id) {
+    /*public PanélisteResponse débloquerPanéliste(Integer id) {
         Optional<User> user = repository.findById(id);
         if(!user.isPresent()) {
             return PanélisteResponse.builder()
@@ -166,9 +264,9 @@ public class PanélisteService {
                 .statusCode(200)
                 .msg("Panéliste Débloqué avec succès")
                 .build();
-    }
+    } */
 
-    public PanélisteResponse modifierPanéliste(Integer id, RegisterRequest request) {
+    /*public PanélisteResponse modifierPanéliste(Integer id, RegisterRequest request) {
         Optional<User> user = repository.findById(id);
         if(!user.isPresent()) {
             return PanélisteResponse.builder()
@@ -198,7 +296,7 @@ public class PanélisteService {
                 .statusCode(200)
                 .msg("Panéliste Modifier avec succès")
                 .build();
-    }
+    } */
 
 
 

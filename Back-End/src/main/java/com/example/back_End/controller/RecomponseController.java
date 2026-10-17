@@ -48,6 +48,15 @@ public class RecomponseController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response);
     }
+    @PutMapping("/categorieRecomponse/modifier/{catRecomponse_id}")
+    public ResponseEntity<CategorieRecomponseResponse> modifierCatRec(
+            @RequestBody CategorieRecomponseRequest request,
+            @PathVariable Integer catRecomponse_id
+    ) {
+        CategorieRecomponseResponse response = service.modifierCategorieRec(request , catRecomponse_id);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response);
+    }
 
     @GetMapping("/recomponse/listRecomponse")
     public ResponseEntity<Page<RecomponseRequest>> gettAllRecomponse(

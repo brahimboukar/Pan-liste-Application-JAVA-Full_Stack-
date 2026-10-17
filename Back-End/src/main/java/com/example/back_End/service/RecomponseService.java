@@ -143,6 +143,31 @@ public class RecomponseService {
         }
     }
 
+    public CategorieRecomponseResponse modifierCategorieRec(CategorieRecomponseRequest request , Integer id)
+    {
+        try {
+            Optional<CategorieRecomponse> categorieRecomponse = repository.findById(id);
+            if(!categorieRecomponse.isPresent()) {
+                return CategorieRecomponseResponse.builder()
+                        .error("Catégorie Récomponse N'exist Pas")
+                        .statusCode(404)
+                        .build();
+            }
+            CategorieRecomponse catRecomponse = categorieRecomponse.get();
+            catRecomponse.setLibelle(request.getLibelle());
+            repository.save(catRecomponse);
+            return CategorieRecomponseResponse.builder()
+                    .msg("Catégorie Etude Modifier Avec Succcé")
+                    .statusCode(201)
+                    .build();
+        } catch (Exception e) {
+            return CategorieRecomponseResponse.builder()
+                    .error(e.getMessage())
+                    .statusCode(500)
+                    .build();
+        }
+    }
+
 
 
     @Transactional(readOnly = true)

@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {CircleStar, Layers, Loader, Trash2} from "lucide-react";
+import {CircleStar, Layers, Loader, Pencil, Trash2} from "lucide-react";
 import {format} from "date-fns";
 import ModalDeleteConfirmation from "../modal/confirmation/ModalDeleteConfirmation.jsx";
 import {axiosClient} from "../../api/axios.js";
 import ToastSucces from "../toast/ToastSucces.jsx";
 import ModalErreur from "../modal/erreur/ModalErreur.jsx";
+import ModalModificationCatRecomponse from "../modal/modification/ModalModificationCatRecomponse.jsx";
 
 function DisplayCatRec({categorieRec, loading, getAllCategorie, currentPage}) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -13,6 +14,7 @@ function DisplayCatRec({categorieRec, loading, getAllCategorie, currentPage}) {
     const [errors, setErrors] = useState('');
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);
+    const [isModalOpen , setIsModalOpen] = useState(false);
 
     const formatDate = (date) => {
         return format(new Date(date), "dd MMM, yyyy");
@@ -85,14 +87,20 @@ function DisplayCatRec({categorieRec, loading, getAllCategorie, currentPage}) {
                     key={item.id}
                     className="border-b last:border-b-0 border-gray-100 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors"
                 >
-                    <td className="py-3 px-4 text-sm font-medium text-violet-600">{item.id}</td>
                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{item.libelle}</td>
                     <td className="px-4 py-4">
                         <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-600">
                             {formatDate(item.createdAt)}
                         </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-4">
+                        <div className="flex justify-end">
+                        <button
+                            className="p-1 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer"
+                            title="Modifier" onClick={() => {setIsModalOpen(true) ; setSelectedCat(item)}}
+                        >
+                            <Pencil size={14}/>
+                        </button>
                         <button
                             title="Supprimer"
                             className="p-1.5 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-colors"
@@ -100,6 +108,7 @@ function DisplayCatRec({categorieRec, loading, getAllCategorie, currentPage}) {
                         >
                             <Trash2 size={14} />
                         </button>
+                        </div>
                     </td>
                 </tr>
             ))}
@@ -119,6 +128,13 @@ function DisplayCatRec({categorieRec, loading, getAllCategorie, currentPage}) {
                 onClose={() => setIsErrorOpen(false)}
                 message={errors}
                 bigmessage="Impossible de supprimer !!"
+            />
+            <ModalModificationCatRecomponse setIsOpen={setIsModalOpen}
+            getAllCategorie={getAllCategorie}
+            currentPage={currentPage}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            cat={selectedCat}
             />
         </>
     );
